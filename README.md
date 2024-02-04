@@ -49,7 +49,21 @@ Make sure you're in the Blockaroo repository.
 ```bash
 npm start
 ```
+And voila! Feel free to experience it yourself!
+
+<img width="1440" alt="Screenshot 2024-02-04 at 22 59 49" src="https://github.com/CalvinLe08/Blockaroo/assets/88606778/65219096-2574-4727-96b4-8c4018d65566">
 
 ## Team members
+
+| Name               | Roles                                           |
+| ------------------ | ----------------------------------------------- |
+| Nghia Phat Chau   | UI/UX designer, Frontend developer               |
+| Thanh Dat Ngo      | Frontend developer, Backend developer            |
+| Nguyen Khang Le    | Backend developer, Blockchain developer          |
+
+
+## License
+This project is licensed under the terms of the [MIT license](LICENSE).
+
 
 
