@@ -1,0 +1,91 @@
+
+body {
+  margin: 0;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #141319;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+/* 
+.logowrap {
+  display: flex;
+  position: relative;
+
+  align-content: center;
+  justify-content: center;
+} */
+
+.logo {
+  width: 37.5px;
+  margin: 0 22.5px 7.5px 15px;
+}
+
+.ethereumicon {
+  width: 30px;
+  margin: 3px 5px 3px 10px;
+}
+
+.itemtransaction {
+  width: 60px;
+  border-radius: 30px;
+}
+
+.logotext {
+  width: 150px;
+  margin-top: 7.5px;
+  margin-right: 15px;
+}
+
+.side-menu {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 0;
+  width: 240px;
+  height: 100%;
+  background-color: #080808;
+}
+
+.homeBanner, .homeMarket {
+  display: flex;
+  max-width: 67.5vw;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.homeMarket {
+  margin-top: 22.5px;
+}
+
+.live-auctions {
+  display: block;
+}
+
+.items-list {
+  display: flex;
+  justify-content: space-around;
+  max-width: 90vw;
+}
+
+.sideBar {
+  max-width: 270px;
+  margin-top: 30px;
+  margin-left: 15px;
+}
+
+
+@media (max-width: 1200px) {
+  .sideBar {
+    display: none;
+  }
+  .homeBanner, .homeMarket {
+    max-width: 95vw;
+  }
+}

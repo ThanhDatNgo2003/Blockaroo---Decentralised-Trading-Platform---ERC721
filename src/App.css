@@ -1,0 +1,435 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+.trending {
+  background-color: #212229;
+  border-radius: 30px;
+  padding: 7.5px;
+}
+
+.usertrendingavatar{
+  max-width: 40px;
+  max-height: 40px;
+  border-radius: 100%; 
+  padding-right: 7.5px;
+}
+
+.marketplace{
+  display: flex;
+  justify-content: center;
+}
+
+.middlemarket{
+  max-width: 1500px;
+}
+
+.MuiPagination-root {
+  button {
+    color: #ffffff;
+ }
+ div{
+  color: #ffffff;
+ }
+}
+
+/* LoginPage */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  background-color: #141319;
+}
+
+.auth-container {
+  width: 350px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.auth-container.login {
+  transform: translateX(0);
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.form-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.form-button:hover {
+  background-color: #45a049;
+}
+
+.form-text {
+  margin-top: 10px;
+}
+
+.toggle-link {
+  color: #3498db;
+  cursor: pointer;
+}
+
+.toggle-link:hover {
+  text-decoration: underline;
+}
+
+.nft-profile{
+  display: flex;
+  gap: 50px;
+}
+
+.nft-content{
+  margin-top: 50px;
+}
+
+.owner{
+  color: #419AE0;
+}
+
+.css-19joarl-MuiCardContent-root:last-child {
+  padding-bottom: 9px !important;
+  padding-top: 3px !important;
+}
+
+.css-1r89560-MuiTypography-root {
+  margin-bottom: 4px !important;
+}
+
+.css-12rl710-MuiPaper-root-MuiDialog-paper {
+  height: 100vh !important;
+  width: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  background-color: transparent !important;
+}
+
+
+.css-yiavyu-MuiBackdrop-root-MuiDialog-backdrop {
+  position: relative !important;
+} 
+
+.css-1t1j96h-MuiPaper-root-MuiDialog-paper {
+  border-radius: 12px !important;
+}
+
+.css-ypiqx9-MuiDialogContent-root{
+  padding: 5px 25px 10px 25px !important;
+}
+
+/* UserProfileCard */
+.upc{
+  width: 100vw;
+  border-radius: 4px;
+  background: white;
+  text-align: center;
+}
+
+.gradiant{
+  background-image: linear-gradient(#91baff, #205fff);
+  height: 300px;
+  border-radius: 4px 4px 0 0;
+}
+
+.gradiant img{
+  height: 150px;
+  border-radius: 100px;
+  padding: 5px;
+  background: white;
+  margin-top: 30px;
+}
+
+.profile-title{
+  font-size: 36px;
+  font-weight: 600;
+  color: white;
+}
+
+.profile-description{
+  padding: 20px 40px;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+}
+
+/*kkk
+*/
+
+
+.loading {
+  color: white;
+  text-align: center;
+}
+
+.error {
+  color: rgb(255, 56, 56);
+  text-align: center;
+}
+
+.edit-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: #0c0c0c;
+  height: 100vh;
+}
+
+.close {
+  background-color: transparent;
+  border: none;
+  align-self: end;
+  margin: 1rem 1.15rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: rgb(41, 128, 243);
+}
+
+
+.input-container {
+  width: 80%;
+  font-size: 1rem;
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-container > input {
+  margin: 1rem 0 1rem 0;
+  padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+  background-color: #505050;
+  border: none;
+  border-radius: 4px;
+  color: white;
+}
+
+.input-container > textarea {
+  padding: 0.25rem 0.5rem 4rem 0.5rem;
+  height: 100px;
+  background-color: #505050;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  margin: 1rem 0 1rem 0;
+  text-align: start;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.input-image-container {
+  flex-wrap: wrap;
+}
+
+label:nth-child(7) {
+  margin-bottom: 1rem;
+}
+
+.input-image {
+  cursor: pointer;
+  border-radius: 14px;
+  background-color: white;
+  padding: 0.5rem;
+  width: 90px;
+  margin-right: 1rem;
+  margin-bottom: 2rem;
+  height: 130px;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.theme-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.theme-container > label {
+  margin-right: 5rem;
+}
+
+
+
+.info-edit {
+  cursor: pointer;
+  align-self: flex-end;
+  border: 2px solid white;
+  margin: 1rem 1.15rem 0 0;
+  padding: 0.45rem;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  padding-left: 2rem;
+  color: white;
+  align-items: center; /* Center the content horizontally */
+}
+
+.info-username {
+  width: 50%;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center; /* Center the text horizontally */
+}
+
+.info-age,
+.info-about {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-ava {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  overflow: hidden;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.edit-container label,
+.theme-container label {
+  color: white;
+}
+
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-image-container {
+  margin-top: 10px;
+  position: relative;
+}
+
+.input-image {
+  width: 100px; /* Adjust the size as needed */
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+/* Style the file input to make it visually hidden */
+input[type="file"] {
+  display: none;
+}
+
+/* Style the label to make it look like a button */
+label[for="file-input"] {
+  cursor: pointer;
+  padding: 10px 15px;
+  background-color: #2196F3; /* Change the color as needed */
+  color: white;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* Style the file name text */
+.file-name {
+  margin-top: 5px;
+}
+
+.theme-container {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.theme-color {
+  margin-top: 5px;
+}
+.edit-profile {
+  color: white;
+  /* Other styles for your h1 element */
+}
+
+.title-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 24px;
+  color: #2196f3; /* Set your desired text color */
+  margin-left: 10px; /* Adjust the margin as needed */
+}
+
+.logo-container {
+  width: 50px; /* Set your desired width for the logo container */
+}
+
+
