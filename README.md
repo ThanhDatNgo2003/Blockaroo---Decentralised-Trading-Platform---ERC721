@@ -38,7 +38,7 @@ To install the frontend component, please open your terminal/command prompt and 
 ```bash
 mkdir cos30049_blockaroo      # create repository for testing
 cd cos30049_blockaroo         # go to that repository
-git clone https://github.com/COS30049/cos30049_frontend.git  # clone project from GitHub
+git clone https://github.com/CalvinLe08/Blockaroo.git  # clone project from GitHub
 cd cos30049_frontend          # navigate into the cloned directory
 npm install                   # install dependencies
 ```
