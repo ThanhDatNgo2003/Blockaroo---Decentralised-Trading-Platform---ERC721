@@ -100,6 +100,7 @@
             from: objectToModify.walletaddress,
             to: walletAddress,
             status: 'success',
+            price: objectToModify.price, 
           };
 
           if (objectToModify) {

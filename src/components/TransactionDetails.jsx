@@ -17,6 +17,7 @@ const TransactionDetails = ({ transaction }) => {
           <Typography variant="body1">Token ID: {transaction.tokenId}</Typography>
           <Typography variant="body1">From: {transaction.from}</Typography>
           <Typography variant="body1">To: {transaction.to}</Typography>
+          <Typography variant="body1">Price: {transaction.price}</Typography>
         </>
       )}
 
