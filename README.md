@@ -35,12 +35,29 @@ Blockaroo is a decentralized trading platform built on blockchain and smart cont
 
 To install the frontend component, please open your terminal/command prompt and follow these steps:
 
+#1. Create a directory
 ```bash
-mkdir cos30049_blockaroo      # create repository for testing
-cd cos30049_blockaroo         # go to that repository
-git clone https://github.com/CalvinLe08/Blockaroo.git  # clone project from GitHub
-cd Blockaroo          # navigate into the cloned directory
-npm install                   # install dependencies
+mkdir cos30049_blockaroo 
+```
+
+#2. Navigate to the directory just created
+```bash
+cd cos30049_blockaroo
+```
+
+#3. Clone the project from github
+```bash
+git clone https://github.com/CalvinLe08/Blockaroo.git
+```
+
+#4. Navigate into the cloned directory
+```bash
+cd Blockaroo
+```
+
+#5. Install dependencies using npm
+```bash
+npm install            
 ```
 
 ## Getting Started
