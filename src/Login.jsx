@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from './components/WalletContext';
+import login from "./api/login";
+import register from "./api/register";
+import getUser from "./api/getUser";
+
 
 // Import your logo image
 import logo from './logo.png';
@@ -8,29 +12,38 @@ import logo from './logo.png';
 const Login = () => {
   const { setDefaultState } = useWallet();
   const [isRegister, setIsRegister] = useState(true);
-  const [formData, setFormData] = useState({
-    userName: '',
-    email: '',
-    phoneNum: '',
-    password: '',
-  });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
   const handleToggleForm = () => {
     setIsRegister((prevIsRegister) => !prevIsRegister);
-    setFormData({
-      userName: '',
-      email: '',
-      phoneNum: '',
-      password: '',
-    });
+    setUsername('');
+    setEmail('');
+    setPassword('');
     setConfirmPassword('');
   };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const { name, value } = e.target;
+    switch (name) {
+        case "username":
+            setUsername(value);
+            break;
+        case "password":
+            setPassword(value);
+            break;
+        case "email":
+            setEmail(value);
+            break;
+        default:
+            break;
+    }
+};
+
 
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
@@ -44,41 +57,65 @@ const Login = () => {
     e.preventDefault();
 
     if (isRegister) {
-      // Registration logic with password confirmation
-      if (formData.password !== confirmPassword) {
-        alert('Passwords do not match. Please enter matching passwords.');
-        return;
-      }
-
-      const registeredUsers = JSON.parse(sessionStorage.getItem('registeredUsers')) || [];
-      const isUsernameTaken = registeredUsers.some(
-        (user) => user.userName === formData.userName
-      );
-
-      if (isUsernameTaken) {
-        alert('Username is already taken. Please choose another.');
+      if (password === confirmPassword) {
+        getUser(username )
+          .then((res) => res.data)
+          .then((data) => {
+            if (data.exist === "True") {
+              register({ username: username, email: email, password: password })
+                .then((resp) => resp.data)
+                .then((data) => {
+                  if (data.hasOwnProperty("message")) {
+                    alert(data["message"]);
+                    setIsRegister(false);
+                  } else {
+                    alert(data["error"]);
+                  }
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            } else {
+              alert("Username is already taken. Please choose another.");
+            }
+          });
       } else {
-        registeredUsers.push(formData);
-        sessionStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-        alert('Registration successful! Now you can log in.');
-        setIsRegister(false);
-      }
+        alert("Your confirmed password does not match!");
+      }      
     } else {
-      // Login logic
-      const registeredUsers = JSON.parse(sessionStorage.getItem('registeredUsers')) || [];
-      const isUserValid = registeredUsers.some(
-        (user) => user.userName === formData.userName && user.password === formData.password
-      );
+      login({username: username, password: password})
+      .then(resp => resp.data)
+      .then(data => {
+          if(data.hasOwnProperty("message"))
+          {
+              console.log(data);
+              setDefaultState();
+              sessionStorage.setItem('isLoggedIn', 'true');
+              sessionStorage.setItem("username", data.username)
+              alert(data["message"])
+              navigate('/marketplace');
+          }
+          else alert(data["error"])
+      })
+      .catch((err) => {
+          console.error(err)
+      })
+    //   // Login logic
+    //   const registeredUsers = JSON.parse(sessionStorage.getItem('registeredUsers')) || [];
+    //   const isUserValid = registeredUsers.some(
+    //     (user) => user.userName === formData.userName && user.password === formData.password
+    //   );
 
-      if (isUserValid) {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('username', formData.userName);
-        setDefaultState();
-        alert('Login successful! Welcome to the Homepage.');
-        navigate('/marketplace');
-      } else {
-        alert('Invalid Username or password. Please try again.');
-      }
+    //   if (isUserValid) {
+    //     sessionStorage.setItem('isLoggedIn', 'true');
+    //     sessionStorage.setItem('username', formData.userName);
+    //     setDefaultState();
+    //     alert('Login successful! Welcome to the Homepage.');
+    //     navigate('/marketplace');
+    //   } else {
+    //     alert('Invalid Username or password. Please try again.');
+    //   }
+    // }
     }
   };
 
@@ -96,8 +133,8 @@ const Login = () => {
             Username:
             <input
               type="text"
-              name="userName"
-              value={formData.userName}
+              name="username"
+              value={username}
               onChange={handleInputChange}
               className="form-input"
               required
@@ -110,18 +147,7 @@ const Login = () => {
                 <input
                   type="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  required
-                />
-              </label>
-              <label className="form-label">
-                Phone Number:
-                <input
-                  type="tel"
-                  name="phoneNum"
-                  value={formData.phoneNum}
+                  value={email}
                   onChange={handleInputChange}
                   className="form-input"
                   required
@@ -134,7 +160,7 @@ const Login = () => {
             <input
               type="password"
               name="password"
-              value={formData.password}
+              value={password}
               onChange={handleInputChange}
               className="form-input"
               required
