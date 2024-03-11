@@ -44,7 +44,6 @@ const Login = () => {
     }
 };
 
-
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
   };
@@ -61,7 +60,7 @@ const Login = () => {
         getUser(username )
           .then((res) => res.data)
           .then((data) => {
-            if (data.exist === "True") {
+            if (data.exist === false) {
               register({ username: username, email: email, password: password })
                 .then((resp) => resp.data)
                 .then((data) => {
@@ -100,22 +99,6 @@ const Login = () => {
       .catch((err) => {
           console.error(err)
       })
-    //   // Login logic
-    //   const registeredUsers = JSON.parse(sessionStorage.getItem('registeredUsers')) || [];
-    //   const isUserValid = registeredUsers.some(
-    //     (user) => user.userName === formData.userName && user.password === formData.password
-    //   );
-
-    //   if (isUserValid) {
-    //     sessionStorage.setItem('isLoggedIn', 'true');
-    //     sessionStorage.setItem('username', formData.userName);
-    //     setDefaultState();
-    //     alert('Login successful! Welcome to the Homepage.');
-    //     navigate('/marketplace');
-    //   } else {
-    //     alert('Invalid Username or password. Please try again.');
-    //   }
-    // }
     }
   };
 
