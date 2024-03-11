@@ -15,7 +15,7 @@ origins = ["*"]
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "020503",
+    "password": "Taikhoandabihack@0805",
 }
 
 
@@ -198,5 +198,42 @@ async def get_account(account: Account):
             return {"exist": True}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
+    
+from fastapi import FastAPI
+import mysql.connector
+
+app = FastAPI()
+
+# Assuming you have established a connection object named 'connection'
+
+@app.get("/NFTitems")
+def get_NFTitems():
+    try:
+        connection = mysql.connector.connect(**db_config)
+        # Create a cursor to execute SQL queries
+        cursor = connection.cursor()
+
+        # Define the SQL query to retrieve NFT items
+        query = "SELECT item_id, token_id, item_name, image_url, price, onsell, artist, wallet_address FROM NFTitems;"
+
+        # Execute the SQL query
+        cursor.execute(query)
+
+        # Fetch all the rows
+        result = cursor.fetchall()
+
+        # Convert the result to a list of dictionaries
+        NFTitems = [dict(zip(cursor.column_names, row)) for row in result]
+        
+        # Close the cursor and the database connection
+        cursor.close()
+
+        if (len(NFTitems) == 0):
+            return {"message": "No NFT items available!"}
+        else:
+            return NFTitems
+    except mysql.connector.Error as err:
+        return {"error": f"Error: {err}"}
+
 
 init()
