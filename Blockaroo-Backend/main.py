@@ -37,8 +37,8 @@ class Account(BaseModel):
     
 
 
-with open('./src/blockaroodata/ItemsNFT.json') as file:
-    assets = json.load(file)
+with open('./blockaroodata/ItemsNFT.json') as file:
+    items = json.load(file)
 
 def init ():
     try:
@@ -51,22 +51,22 @@ def init ():
         query = '''USE blockaroo_db;'''
         cursor.execute(query)
         
+        query = '''CREATE TABLE IF NOT EXISTS wallets (
+            wallet_address VARCHAR(100) PRIMARY KEY,
+            private_key VARCHAR(100) NOT NULL
+        );'''
+        cursor.execute(query)
+        
         query = '''CREATE TABLE IF NOT EXISTS accounts (
             user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(50) NOT NULL,
             email VARCHAR(50) NOT NULL,
-            password VARCHAR(50) NOT NULL
+            password VARCHAR(50) NOT NULL,
+            wallet_address VARCHAR(50),
+            FOREIGN KEY (wallet_address) REFERENCES wallets(wallet_address)
         );'''
         cursor.execute(query)
-        
-        query = '''CREATE TABLE IF NOT EXISTS wallets (
-            user_id INT NOT NULL,
-            wallet_address VARCHAR(100) PRIMARY KEY,
-            private_key VARCHAR(100) NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES accounts (user_id)
-        );'''
-        cursor.execute(query)
-        
+
         query = '''CREATE TABLE IF NOT EXISTS NFTItems (
             item_id INT AUTO_INCREMENT PRIMARY KEY,
             token_id VARCHAR(255) UNIQUE NOT NULL,
@@ -78,8 +78,8 @@ def init ():
             wallet_address VARCHAR(100) NOT NULL,
             FOREIGN KEY (wallet_address) REFERENCES wallets(wallet_address)
         );'''
-        cursor.execute(query)
-        
+        cursor.execute(query)      
+          
         query = '''CREATE TABLE IF NOT EXISTS TransactionHistory (
             transaction_id INT AUTO_INCREMENT PRIMARY KEY,
             token_id VARCHAR(50) NOT NULL,
@@ -91,6 +91,26 @@ def init ():
             FOREIGN KEY (token_id) REFERENCES NFTItems(token_id)
         );'''
         cursor.execute(query)
+        
+        query = '''INSERT IGNORE INTO wallets (wallet_address, private_key)
+            VALUES 
+            ('0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8', '0x73a844da7a99cb442b3b49af5695b4d62432be97907fa14379da15461deb4332');'''
+        cursor.execute(query)
+
+        
+        cursor.execute('''SELECT COUNT(*) FROM NFTItems''')
+        count = cursor.fetchone()[0]
+
+        if count == 0:
+            # If NFTItems table is empty, insert data
+            for item in items:
+                sql = '''INSERT INTO NFTItems (token_id, item_name, image_url, price, onsell, artist, wallet_address) 
+                         VALUES (%s, %s, %s, %s, %s, %s, %s)'''
+                val = (item['token_id'], item['item_name'], item['image_uri'], item['price'], item['onsell'], item['artist'], item['wallet_address'])
+                cursor.execute(sql, val)
+
+            connection.commit()
+
         
         cursor.close()
         connection.close()
@@ -178,4 +198,5 @@ async def get_account(account: Account):
             return {"exist": True}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
+
 init()
