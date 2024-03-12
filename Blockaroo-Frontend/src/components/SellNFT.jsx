@@ -19,7 +19,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField'; // Import TextField for input
-import jsonItemsData from '../blockaroodata/ItemsNFT';
+import getItems from '../api/getItems';
 
 const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -31,6 +31,19 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const [itemsData, setItemsData] = useState([])
+
+
+  getItems()
+  .then((res) => res.data)
+  .then((data) => {
+    if (data.hasOwnProperty("message")) {
+      alert(data.message);
+    } else {
+      setItemsData(data.NFTItems);
+    }
+  });
 
   const getCurrentFormattedDateTime = () => {
     const dateOptions = {
@@ -56,13 +69,13 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
   const handleSellSuccess = (token, price) => {
     setSnackbarSeverity('success');
     setSnackbarMessage('Your NFT has been listed on the marketplace successfully');
-    const objectToModify = jsonItemsData.ItemsData.find((item) => item.token === token);
+    const objectToModify = itemsData.find((item) => item.token === token);
     if (objectToModify) {
       // Modify the specific fields
       objectToModify.onsell = true;
       objectToModify.price = price;
     }
-    const jsonString = JSON.stringify(jsonItemsData, null, 2);
+    const jsonString = JSON.stringify(itemsData, null, 2);
     console.log(jsonString);
     setSnackbarOpen(true);
   };

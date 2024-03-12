@@ -19,7 +19,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ConfirmTransactionPopup, ConfirmLoginPopup} from './ConfirmationTransaction.jsx';
 import ItemDetails from './ItemDetails';
-import jsonItemsData from '../blockaroodata/ItemsNFT';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import Modal from '@mui/material/Modal';
 import Select from '@mui/material/Select';
@@ -27,12 +26,15 @@ import MenuItem from '@mui/material/MenuItem';
 import SortByAlphaRoundedIcon from '@mui/icons-material/SortByAlphaRounded';
 import { useNavigate } from 'react-router-dom';
 import Backdrop from '@mui/material/Backdrop';
+import getItems from '../api/getItems';
+import { useEffect } from 'react';
 
 
 const BlurredBackdrop = styled(Backdrop)({
   backdropFilter: 'blur(5px)',
   backgroundColor: 'rgba(0, 0, 0, 0.8)',
 });
+
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -91,7 +93,7 @@ const ItemContainer = styled(Grid)({
 
 
 
-const ItemsInfo = ({ token, name, image, ownedname, ownedavatar, price, remainingTime, onBuyClick, onViewDetailsClick }) => {
+const ItemsInfo = ({ token, name, image, ownedname, price, onBuyClick, onViewDetailsClick }) => {
   const isMediumScreen = useMediaQuery('(max-width:1300px)');
 
   const handleCardClick = () => {
@@ -139,7 +141,7 @@ const ItemsInfo = ({ token, name, image, ownedname, ownedavatar, price, remainin
         marginTop="8px"
         marginLeft="15px"
       >
-        <img className='usertrendingavatar' src={ownedavatar} alt={`Avatar for ${ownedname}`} />
+        <img className='usertrendingavatar' src="./useravatar.jpg" alt={`Avatar for ${ownedname}`} />
         <Box>
           <Typography noWrap component="div" margin="0" color="#c5c5c6" sx={{ fontSize: '16px' }}>
             {name}
@@ -176,6 +178,31 @@ const ItemsList = () => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState('name'); // Default sorting by name
   const [sortOrder, setSortOrder] = useState('asc'); // Default sorting order
+  const [filteredItems, setFilteredItems] = useState([]);
+
+
+  const [itemsData, setItemsData] = useState([])
+
+
+  useEffect(() => {
+    getItems()
+      .then((res) => res.data)
+      .then((data) => {
+        // console.log('Fetched data:', data);
+        if (data.hasOwnProperty("message")) {
+          // Handle error message if needed
+        } else {
+          // Update itemsData state with the fetched data
+          setItemsData(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+
+  
 
   const handleSortChange = (property) => {
     if (sortBy === property) {
@@ -188,21 +215,20 @@ const ItemsList = () => {
     }
   };
 
-  jsonItemsData.ItemsData.sort((a, b) => {
-    const order = sortOrder === 'asc' ? 1 : -1;
-
-    if (sortBy === 'name') {
-      // Sort alphabetically by name
-      return order * a.name.localeCompare(b.name);
-    } else if (sortBy === 'price') {
-      // Sort by price
-      return order * (a.price - b.price);
-    }
-
-    // Add more sorting options as needed
-
-    return 0; // Default: No sorting
-  });
+  if (itemsData && itemsData.length > 0) {
+    // Sorting items based on selected property and order
+    itemsData.sort((a, b) => {
+      const order = sortOrder === 'asc' ? 1 : -1;
+  
+      if (sortBy === 'item_name') {
+        return order * a.item_name.localeCompare(b.item_name);
+      } else if (sortBy === 'price') {
+        return order * (a.price - b.price);
+      }
+  
+      return 0; // Default: No sorting
+    });
+  }
 
   const navigate = useNavigate();
   
@@ -245,14 +271,19 @@ const ItemsList = () => {
     setConfirmLoginOpen(false);
   };
 
-  const onSellNFT = jsonItemsData.ItemsData.filter((item) => item.onsell === true);
-
-  const filteredItems = onSellNFT.filter((item) =>
-    (animalFilter === '' || item.name.toLowerCase().includes(animalFilter.toLowerCase())) &&
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    if (itemsData && itemsData.length > 0) {
+      const onSellNFT = itemsData.filter((item) => item.onsell === 1);
+      const filtered = onSellNFT.filter((item) =>
+        (animalFilter === '' || item.item_name.toLowerCase().includes(animalFilter.toLowerCase())) &&
+        item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    }
+  }, [itemsData, animalFilter, searchTerm]); 
   
-
+  
+  const onSellNFT = itemsData.filter((item) => item.onsell === 1);
   const itemsPerPage = 12;
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -265,6 +296,10 @@ const ItemsList = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredItems.slice(startIndex, endIndex);
 
+  console.log('onSell:', onSellNFT);
+  console.log('item:', itemsData);
+  console.log('Fill:', filteredItems);
+  console.log('current:', currentItems);
 
   return (
     <RootContainer>
@@ -321,24 +356,25 @@ const ItemsList = () => {
       </Modal>
       </Box>
       <Grid container>
-        {currentItems.map((item) => (
-          <ItemContainer key={item.token} items xs={6} sm={4} md={3} lg={4} xl={3}>
+        {currentItems.map((item) => {
+          console.log(item.item_id);
+          return (
+          <ItemContainer key={item.item_id} items xs={6} sm={4} md={3} lg={4} xl={3}>
             <div>
               <ItemsInfo
-                token={item.token}
-                name={item.name}
-                ownedname={item.ownedname}
-                ownedavatar={item.ownedavatar}
-                image={item.image}
+                token={item.token_id}
+                name={item.item_name}
+                image={item.image_url}
+                ownedname={item.username}
                 price={item.price}
-                artist={item.artists}
-                remainingTime={item.remainingTime}
+                artist={item.artist}
                 onBuyClick={() => handleBuyButtonClick(item)}
                 onViewDetailsClick={() => handleViewDetailsClick(item)}
               />
             </div>
           </ItemContainer>
-        ))}
+          );
+        })}
       </Grid>
       <ItemDetails
         token={selectedItem ? selectedItem.token : null}

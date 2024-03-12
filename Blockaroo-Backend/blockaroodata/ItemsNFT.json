@@ -6,7 +6,7 @@
     "price": 0.85,
     "onsell": true,
     "artist": "John Doe",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x1cf7b3492d90297a48e4fe02c6d7a1d3",
@@ -15,7 +15,7 @@
     "price": 3,
     "onsell": true,
     "artist": "Jane Smith",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x8d16a7cb2b3af1299e92f7ec6c21cb87",
@@ -24,7 +24,7 @@
     "price": 1.20,
     "onsell": true,
     "artist": "Alex Johnson",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x75a7c2f0abaf9e94a5e564c12956d7cd",
@@ -33,7 +33,7 @@
     "price": 0.99,
     "onsell": true,
     "artist": "Sophie Williams",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x16e94387a08f5e6b85d8b7a3c54fe3db",
@@ -42,7 +42,7 @@
     "price": 5.75,
     "onsell": true,
     "artist": "David Brown",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x2c1e64707cb9ee06f51f8e289b5f68c3",
@@ -51,7 +51,7 @@
     "price": 2.30,
     "onsell": true,
     "artist": "Olivia Turner",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0xf9a2b2a6db3ecabca9b4e7f1c3d18f0b",
@@ -60,7 +60,7 @@
     "price": 0.75,
     "onsell": true,
     "artist": "Michael Adams",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x3c9900d4969c8b2df3e6ad37f9cd80b5",
@@ -69,7 +69,7 @@
     "price": 1.80,
     "onsell": true,
     "artist": "Emma White",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0xdbb3cb05f2e081383c15a9d0a3d371c0",
@@ -78,7 +78,7 @@
     "price": 0.50,
     "onsell": true,
     "artist": "Benjamin Taylor",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x4687c5c601d7cd692ee1a7b24666c18b",
@@ -87,7 +87,7 @@
     "price": 0.95,
     "onsell": true,
     "artist": "Ava Martinez",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x25e4cfab5f46ee98d56edc8ce16d8fc7",
@@ -96,7 +96,7 @@
     "price": 4.25,
     "onsell": true,
     "artist": "Daniel Walker",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x8cb8a3d3b40808b3ad90c7c95d8b4e3c",
@@ -105,7 +105,7 @@
     "price": 2.90,
     "onsell": true,
     "artist": "Ella Thompson",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x6e0a8d5a39d5011a899db1c21d78394b",
@@ -114,7 +114,7 @@
     "price": 1.60,
     "onsell": true,
     "artist": "Gabriel Clark",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0xb68a4b1e1344f0d6807f6d07d895268c",
@@ -123,7 +123,7 @@
     "price": 0.70,
     "onsell": true,
     "artist": "Grace Harris",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x9d8490a2f4c3144cb3bf85686df2a399",
@@ -132,7 +132,7 @@
     "price": 1.45,
     "onsell": true,
     "artist": "Jack Turner",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x42343904bc6a2e0c0d12d50c12a45c35",
@@ -141,7 +141,7 @@
     "price": 0.55,
     "onsell": true,
     "artist": "Liam Evans",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x2a2c1f02f2c85660f5ee26b6e2584b79",
@@ -150,7 +150,7 @@
     "price": 3.10,
     "onsell": true,
     "artist": "Isabella Harris",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   },
   {
     "token_id": "0x3170f54fc1a55f98f5980b9a74ec2e45",
@@ -159,6 +159,6 @@
     "price": 0.45,
     "onsell": true,
     "artist": "Emma Turner",
-    "wallet_address": "0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8"
+    "wallet_address": "0x29606cA83057851DF501B48c5450ee5E12e956bE"
   }
 ]

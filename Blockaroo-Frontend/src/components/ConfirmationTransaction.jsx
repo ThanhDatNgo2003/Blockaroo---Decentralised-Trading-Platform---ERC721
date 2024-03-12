@@ -20,7 +20,7 @@
   import Snackbar from '@mui/material/Snackbar';
   import MuiAlert from '@mui/material/Alert';
   import { useWallet } from './WalletContext';
-  import jsonItemsData from '../blockaroodata/ItemsNFT';
+  import getItems from '../api/getItems';
   import { useEffect } from 'react';
 
   const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
@@ -54,6 +54,17 @@
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const { walletAddress, walletState, deductFunds } = useWallet();
     const [transactionHistory, setTransactionHistory] = useState([]);
+    const [itemsData, setItemsData] = useState([])
+
+    getItems()
+    .then((res) => res.data)
+    .then((data) => {
+      if (data.hasOwnProperty("message")) {
+        alert(data.message);
+      } else {
+        setItemsData(data.NFTItems);
+      }
+    });
 
     useEffect(() => {
       // Load transaction history from local storage on component mount
@@ -89,7 +100,7 @@
           console.log('New Balance:', walletState.balance);
           setSnackbarSeverity('success');
           setSnackbarMessage('Transaction confirmed successfully');
-          const objectToModify = jsonItemsData.ItemsData.find(item => item.token === token);
+          const objectToModify = itemsData.find(item => item.token === token);
           const storedUsername = sessionStorage.getItem('username');
 
           // Create newTransaction object
@@ -115,7 +126,7 @@
           }
 
           
-          const jsonString = JSON.stringify(jsonItemsData, null, 2);
+          const jsonString = JSON.stringify(itemsData, null, 2);
           console.log(jsonString);
       } else {
         setSnackbarSeverity('error');

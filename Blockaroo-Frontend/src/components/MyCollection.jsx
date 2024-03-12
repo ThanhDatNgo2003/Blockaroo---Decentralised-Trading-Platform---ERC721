@@ -16,8 +16,8 @@ import {
   import SellIcon from '@mui/icons-material/Sell';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ConfirmSellPopup from './SellNFT';
-import jsonItemsData from '../blockaroodata/ItemsNFT';
 import { useWallet } from './WalletContext';
+import getItems from '../api/getItems';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -174,11 +174,25 @@ const MyCollection = () => {
   const [isSellOpen, setSellOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
+  const [itemsData, setItemsData] = useState([])
+
+
+  getItems()
+  .then((res) => res.data)
+  .then((data) => {
+    if (data.hasOwnProperty("message")) {
+      alert(data.message);
+    } else {
+      setItemsData(data.NFTItems);
+    }
+  });
+
   const { walletAddress } = useWallet();
 
   const handleViewDetailsClick = (item) => {
     setSelectedItem(item);
   };
+
 
   const handleConfirmSell = () => {
     // Perform the transaction or any other action here
@@ -197,7 +211,7 @@ const MyCollection = () => {
   };
 
 
-  const MyNFT = jsonItemsData.ItemsData.filter((item) => {
+  const MyNFT = itemsData.filter((item) => {
     const itemWalletAddress = item.walletaddress?.walletAddress;
     return itemWalletAddress === walletAddress;
   });
