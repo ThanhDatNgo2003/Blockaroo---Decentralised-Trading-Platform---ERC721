@@ -283,7 +283,6 @@ const ItemsList = () => {
   }, [itemsData, animalFilter, searchTerm]); 
   
   
-  const onSellNFT = itemsData.filter((item) => item.onsell === 1);
   const itemsPerPage = 12;
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -296,7 +295,6 @@ const ItemsList = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredItems.slice(startIndex, endIndex);
 
-  console.log('onSell:', onSellNFT);
   console.log('item:', itemsData);
   console.log('Fill:', filteredItems);
   console.log('current:', currentItems);

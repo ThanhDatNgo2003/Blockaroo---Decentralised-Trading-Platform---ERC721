@@ -242,7 +242,7 @@ def get_NFTitems():
         cursor.execute(query)
 
         # Define the SQL query to retrieve NFT items
-        query = "SELECT N.item_id, N.token_id, N.item_name, N.image_url, N.price, N.onsell, N.artist, N.wallet_address, A.username FROM NFTitems N INNER JOIN accounts A ON N.wallet_id = A.wallet_id;"
+        query = "SELECT N.item_id, N.token_id, N.item_name, N.image_url, N.price, N.onsell, N.artist, w.wallet_address, A.username FROM NFTitems N INNER JOIN accounts A ON N.wallet_id = A.wallet_id INNER JOIN wallets w ON w.wallet_id = A.wallet_id;"
 
         # Execute the SQL query
         cursor.execute(query)
