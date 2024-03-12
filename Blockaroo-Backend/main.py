@@ -47,7 +47,8 @@ def init ():
         cursor.execute(query)
         
         query = '''CREATE TABLE IF NOT EXISTS wallets (
-            wallet_address VARCHAR(100) PRIMARY KEY,
+            wallet_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            wallet_address VARCHAR(100) NOT NULL,
             private_key VARCHAR(100) NOT NULL
         );'''
         cursor.execute(query)
@@ -57,8 +58,8 @@ def init ():
             username VARCHAR(50) NOT NULL,
             email VARCHAR(50) NOT NULL,
             password VARCHAR(50) NOT NULL,
-            wallet_address VARCHAR(50),
-            FOREIGN KEY (wallet_address) REFERENCES wallets(wallet_address)
+            wallet_id INT,
+            FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id)
         );'''
         cursor.execute(query)
 
@@ -70,22 +71,10 @@ def init ():
             price DECIMAL(10, 2) NOT NULL,
             onsell BOOLEAN NOT NULL,
             artist VARCHAR(50) NOT NULL,
-            wallet_address VARCHAR(100) NOT NULL,
-            FOREIGN KEY (wallet_address) REFERENCES wallets(wallet_address)
+            wallet_id INT,
+            FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id)
         );'''
-        cursor.execute(query)      
-          
-        query = '''CREATE TABLE IF NOT EXISTS TransactionHistory (
-            transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-            token_id VARCHAR(50) NOT NULL,
-            event VARCHAR(100) NOT NULL,
-            from_address VARCHAR(50) NOT NULL,
-            to_address VARCHAR(50) NOT NULL,
-            date TIMESTAMP NOT NULL,
-            contract_address VARCHAR(50) NOT NULL,
-            FOREIGN KEY (token_id) REFERENCES NFTItems(token_id)
-        );'''
-        cursor.execute(query)
+        cursor.execute(query)     
         
         query = '''
             INSERT IGNORE INTO wallets (wallet_address, private_key)
@@ -111,6 +100,24 @@ def init ():
             ('0xD197aE6acb1c87126D7768a13feDD78043758049', '0xcb55a30527afd20a872ec9d0d35b863db9c1306000679b5de864fa240dfb538d'),
             ('0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8', '0x73a844da7a99cb442b3b49af5695b4d62432be97907fa14379da15461deb4332');'''
         cursor.execute(query)
+        
+        query = '''
+            INSERT INTO accounts (username, email, password, wallet_id)
+            VALUES ('admin', 'admin@gmail.com', '1234', '1');'''
+        cursor.execute(query) 
+          
+        query = '''CREATE TABLE IF NOT EXISTS TransactionHistory (
+            transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+            token_id VARCHAR(50) NOT NULL,
+            event VARCHAR(100) NOT NULL,
+            from_address VARCHAR(50) NOT NULL,
+            to_address VARCHAR(50) NOT NULL,
+            date TIMESTAMP NOT NULL,
+            contract_address VARCHAR(50) NOT NULL,
+            FOREIGN KEY (token_id) REFERENCES NFTItems(token_id)
+        );'''
+        cursor.execute(query)
+    
 
         
         cursor.execute('''SELECT COUNT(*) FROM NFTItems''')
@@ -119,9 +126,9 @@ def init ():
         if count == 0:
             # If NFTItems table is empty, insert data
             for item in items:
-                sql = '''INSERT INTO NFTItems (token_id, item_name, image_url, price, onsell, artist, wallet_address) 
+                sql = '''INSERT INTO NFTItems (token_id, item_name, image_url, price, onsell, artist, wallet_id) 
                          VALUES (%s, %s, %s, %s, %s, %s, %s)'''
-                val = (item['token_id'], item['item_name'], item['image_uri'], item['price'], item['onsell'], item['artist'], item['wallet_address'])
+                val = (item['token_id'], item['item_name'], item['image_uri'], item['price'], item['onsell'], item['artist'], item['wallet_id'])
                 cursor.execute(sql, val)
 
         connection.commit()
@@ -235,7 +242,7 @@ def get_NFTitems():
         cursor.execute(query)
 
         # Define the SQL query to retrieve NFT items
-        query = "SELECT item_id, token_id, item_name, image_url, price, onsell, artist, wallet_address FROM NFTitems;"
+        query = "SELECT N.item_id, N.token_id, N.item_name, N.image_url, N.price, N.onsell, N.artist, N.wallet_address, A.username FROM NFTitems N INNER JOIN accounts A ON N.wallet_id = A.wallet_id;"
 
         # Execute the SQL query
         cursor.execute(query)

@@ -93,7 +93,7 @@ const ItemContainer = styled(Grid)({
 
 
 
-const ItemsInfo = ({ token, name, image, ownedname, price, onBuyClick, onViewDetailsClick }) => {
+const ItemsInfo = ({ token, name, image, ownedname, price, artist, onBuyClick, onViewDetailsClick }) => {
   const isMediumScreen = useMediaQuery('(max-width:1300px)');
 
   const handleCardClick = () => {
@@ -147,7 +147,7 @@ const ItemsInfo = ({ token, name, image, ownedname, price, onBuyClick, onViewDet
             {name}
           </Typography>
           <Typography noWrap component="div" margin="0" color="#8a8b92" sx={{ fontSize: '14px' }}>
-            {ownedname}
+            {artist}
           </Typography>
         </Box>
       </Box>
@@ -377,23 +377,23 @@ const ItemsList = () => {
         })}
       </Grid>
       <ItemDetails
-        token={selectedItem ? selectedItem.token : null}
-        name={selectedItem ? selectedItem.name : null}
+        token={selectedItem ? selectedItem.token_id : null}
+        name={selectedItem ? selectedItem.item_name : null}
         from={'0x0B97D...a820d'}
         to={'0x0Af3b...2845f'}
-        ownedname={selectedItem ? selectedItem.ownedname : null}
-        image={selectedItem ? selectedItem.image : ''}
+        ownedname={selectedItem ? selectedItem.username : null}
+        image={selectedItem ? selectedItem.image_url : ''}
         amount={selectedItem ? selectedItem.price : 0}
-        artist={selectedItem ? selectedItem.artists : null}
+        artist={selectedItem ? selectedItem.artist : null}
         open={isItemDetailsOpen}
         item={selectedItem}
         handleClose={handleCloseItemDetails}
       />
       <ConfirmTransactionPopup
-        token={selectedItem ? selectedItem.token : null}
-        from={'0x0B97D...a820d'}
+        token={selectedItem ? selectedItem.token_id : null}
+        from={selectedItem? selectedItem.wallet_address: null}
         to={'0x0Af3b...2845f'}
-        image={selectedItem ? selectedItem.image : ''}
+        image={selectedItem ? selectedItem.image_url : ''}
         amount={selectedItem ? selectedItem.price : 0}
         open={isConfirmationOpen}
         handleClose={handleCloseConfirmation}
