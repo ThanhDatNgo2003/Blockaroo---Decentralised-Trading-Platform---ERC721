@@ -91,6 +91,7 @@ const Login = () => {
               setDefaultState();
               sessionStorage.setItem('isLoggedIn', 'true');
               sessionStorage.setItem("username", data.username)
+              localStorage.setItem('wallet_address', data.wallet_address);
               alert(data["message"])
               navigate('/marketplace');
           }

@@ -355,9 +355,9 @@ const ItemsList = () => {
       </Box>
       <Grid container>
         {currentItems.map((item) => {
-          console.log(item.item_id);
+          console.log(item.token_id);
           return (
-          <ItemContainer key={item.item_id} items xs={6} sm={4} md={3} lg={4} xl={3}>
+          <ItemContainer key={item.token_id} items xs={6} sm={4} md={3} lg={4} xl={3}>
             <div>
               <ItemsInfo
                 token={item.token_id}

@@ -20,6 +20,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField'; // Import TextField for input
 import getItems from '../api/getItems';
+import sellNFT from '../api/sellNFT';
 
 const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -71,9 +72,9 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
     setSnackbarMessage('Your NFT has been listed on the marketplace successfully');
     const objectToModify = itemsData.find((item) => item.token === token);
     if (objectToModify) {
-      // Modify the specific fields
-      objectToModify.onsell = true;
-      objectToModify.price = price;
+      sellNFT(objectToModify.token_id, objectToModify.price);
+      // objectToModify.onsell = true;
+      // objectToModify.price = price;
     }
     const jsonString = JSON.stringify(itemsData, null, 2);
     console.log(jsonString);

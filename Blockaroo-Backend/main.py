@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import json
 from setting import db_config
+from web3 import Web3, HTTPProvider
+
+# Import solcx in the FastAPI
+from solcx import compile_standard, install_solc
 
 # DB
 import mysql.connector
@@ -30,6 +34,52 @@ class Account(BaseModel):
     username: str
     email: typing.Union[str, None] = None
     password: typing.Union[str, None] = None
+
+# Sell Interface
+class SellModel(BaseModel):
+    token_id: int
+    price: float
+
+# Buy Interface
+class BuyModel(BaseModel):
+    token_id: int
+    from_address: int
+    to_address: int
+    
+    # W3 Config
+w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
+
+admin_address = "0x29606cA83057851DF501B48c5450ee5E12e956bE"
+
+admin_private_key = "0xb26ef8524b1831db27fc8ef739ab4f61854fff4e1d1a1c6715512701f77a8b16"
+
+with open("./BlockarooSmartContract.sol", "r") as file:
+        smart_contract_file = file.read()
+        
+        # Uses the compile_standard method of the solcx library to compile the contract source file and stores the result of the compilation into the variable compiled_sol
+compiled_sol = compile_standard(
+{
+    "language": "Solidity",
+    "sources": {"BlockarooSmartContract.sol": {"content": smart_contract_file}},
+    "settings": {
+        "outputSelection": {
+            "*": {"*": ["abi", "metadata", "evm.bytecode", "evm.sourceMap"]}
+        }
+    },
+},
+    solc_version="0.8.0",
+)
+
+# Get Compilation Results
+with open("compiled_code.json", "w") as file:
+    json.dump(compiled_sol, file)
+    
+    # Get bytecode and abi
+bytecode = compiled_sol["contracts"]["BlockarooSmartContract.sol"]["BlockarooSmartContract"]["evm"]["bytecode"]["object"]
+abi = compiled_sol["contracts"]["BlockarooSmartContract.sol"]["BlockarooSmartContract"]["abi"]
+
+# Deploying the Contract
+BlockarooSmartContract = w3.eth.contract(abi=abi, bytecode=bytecode)
     
 
 with open('./blockaroodata/ItemsNFT.json') as file:
@@ -64,8 +114,7 @@ def init ():
         cursor.execute(query)
 
         query = '''CREATE TABLE IF NOT EXISTS NFTItems (
-            item_id INT AUTO_INCREMENT PRIMARY KEY,
-            token_id VARCHAR(255) UNIQUE NOT NULL,
+            token_id INT AUTO_INCREMENT PRIMARY KEY,
             item_name VARCHAR(50) NOT NULL,
             image_url VARCHAR(255) NOT NULL,
             price DECIMAL(10, 2) NOT NULL,
@@ -76,7 +125,11 @@ def init ():
         );'''
         cursor.execute(query)     
         
-        query = '''
+        cursor.execute('''SELECT COUNT(*) FROM accounts''')
+        count = cursor.fetchone()[0]
+
+        if count == 0:
+            query = '''
             INSERT IGNORE INTO wallets (wallet_address, private_key)
             VALUES 
             ('0x29606cA83057851DF501B48c5450ee5E12e956bE', '0xb26ef8524b1831db27fc8ef739ab4f61854fff4e1d1a1c6715512701f77a8b16'),
@@ -99,16 +152,20 @@ def init ():
             ('0x7724782F2b44E978a6c650664693e05Aeb0d38eB', '0x8697ac8efc176c6462c6bb563dcc5264979be199d9535547ef630e94259ee148'),
             ('0xD197aE6acb1c87126D7768a13feDD78043758049', '0xcb55a30527afd20a872ec9d0d35b863db9c1306000679b5de864fa240dfb538d'),
             ('0x995ECf48f9b734b3D4Aa2c17F8effc88F64D94A8', '0x73a844da7a99cb442b3b49af5695b4d62432be97907fa14379da15461deb4332');'''
-        cursor.execute(query)
+            cursor.execute(query)
         
-        query = '''
-            INSERT INTO accounts (username, email, password, wallet_id)
-            VALUES ('admin', 'admin@gmail.com', '1234', '1');'''
-        cursor.execute(query) 
+        cursor.execute('''SELECT COUNT(*) FROM accounts''')
+        count = cursor.fetchone()[0]
+
+        if count == 0:
+            query = '''
+                INSERT INTO accounts (username, email, password, wallet_id)
+                VALUES ('admin', 'admin@gmail.com', '1234', '1');'''
+            cursor.execute(query) 
           
         query = '''CREATE TABLE IF NOT EXISTS TransactionHistory (
             transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-            token_id VARCHAR(50) NOT NULL,
+            token_id INT NOT NULL,
             event VARCHAR(100) NOT NULL,
             from_address VARCHAR(50) NOT NULL,
             to_address VARCHAR(50) NOT NULL,
@@ -124,12 +181,66 @@ def init ():
         count = cursor.fetchone()[0]
 
         if count == 0:
-            # If NFTItems table is empty, insert data
+            try:
+                nonce = w3.eth.get_transaction_count(admin_address)
+                transaction = BlockarooSmartContract.constructor().build_transaction(
+                {
+                    "chainId": 1337,
+                    "gasPrice": w3.eth.gas_price,
+                    "from": admin_address,
+                    "nonce": nonce,
+                })
+                transaction.pop('to')
+                signed_txn = w3.eth.account.sign_transaction(transaction, private_key=admin_private_key)
+                tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+                tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+                print (tx_receipt["contractAddress"])
+                # If NFTItems table is empty, insert data
+            except Exception as error:
+                print(error)
             for item in items:
-                sql = '''INSERT INTO NFTItems (token_id, item_name, image_url, price, onsell, artist, wallet_id) 
-                         VALUES (%s, %s, %s, %s, %s, %s, %s)'''
-                val = (item['token_id'], item['item_name'], item['image_uri'], item['price'], item['onsell'], item['artist'], item['wallet_id'])
+                sql = '''INSERT INTO NFTItems (item_name, image_url, price, onsell, artist, wallet_id) 
+                         VALUES (%s, %s, %s, %s, %s, %s)'''
+                val = (item['item_name'], item['image_uri'], item['price'], item['onsell'], item['artist'], item['wallet_id'])
                 cursor.execute(sql, val)
+                sql = '''SELECT wallet_address, private_key FROM wallets WHERE wallet_id = %s'''
+                cursor.execute(sql, (item["wallet_id"],))
+                result = cursor.fetchone()
+                if(result != None):
+                    key = dict(zip(cursor.column_names, result))
+                    try:
+                        
+                        blockaroo_smart_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
+                        
+                        mint_transaction = blockaroo_smart_contract.functions.mint(key['wallet_address'], int(item['price'])).build_transaction(
+                        {
+                            "chainId": 1337,
+                            "gas": 2000000,
+                            "gasPrice": w3.eth.gas_price,
+                            "nonce": nonce + 1,
+                            "from": key['wallet_address'],  # Add the sender address
+                            "value": 0, # Set value to 0 (non-payable function)
+                        })     
+                        signed_tx = w3.eth.account.sign_transaction(mint_transaction, private_key=key["private_key"])
+                        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+                        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+                        
+                        print (tx_receipt["contractAddress"])
+                          
+                        # contract_address = tx_receipt["contractAddress"]
+                        
+                        # query = "INSERT IGNORE INTO transaction_history(contract_address, details) VALUES (%s, %s);"
+                        # tx_receiptDict = dict(tx_receipt)
+                        # txnJSON = w3.to_json(tx_receiptDict)
+                        # value = (contract_address, txnJSON)
+                        
+                        # cursor.execute(query, value)
+                        # connection.commit()
+
+                    except Exception as error:
+                        print(error)
+
+                print("Init Success")
 
         connection.commit()
 
@@ -154,47 +265,61 @@ def login(account: Account):
 
         # Execute the SQL query
         cursor.execute(query, values)
-
+                
         # Fetch all the rows
         result = cursor.fetchone()
         print(account.username)
+
+        query = "SELECT w.wallet_address FROM accounts a INNER JOIN wallets w ON a.wallet_id = w.wallet_id;"
+        cursor.execute(query)
+        wallet_address = cursor.fetchone()
+
         # Close the cursor  
         cursor.close()
         connection.close()
 
         if result:
             username = result[0]  # Extract username from the result
-            return {"message": f"Welcome back, {username}", "username": username}
+            return {"message": f"Welcome back, {username}", "username": username, "wallet_address": wallet_address}
         else:
             return {"error": f"Invalid Username or password. Please try again."}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
 
+
+
 @app.post("/signup/")
 def signup(account: Account):
     try:
         connection = mysql.connector.connect(**db_config)
+
         # Create a cursor to execute SQL queries
         cursor = connection.cursor()
         
         query = '''USE blockaroo_db;'''
         cursor.execute(query)
 
+        cursor.execute('''SELECT COUNT(*) FROM accounts''')
+        count = cursor.fetchone()[0]    
+            
         # Define the SQL query to retrieve data (e.g., all assets)
-        query = "INSERT INTO accounts (username, email, password) VALUES (%s, %s, %s)"
-        values= (account.username, account.email, account.password)
+        query = "INSERT INTO accounts (username, email, password, wallet_id) VALUES (%s, %s, %s, %s)"
+        
+        # Increment the wallet_id for the new user
+        values = (account.username, account.email, account.password, (count + 1))
 
         # Execute the SQL query
         cursor.execute(query, values)
+        
+        
 
         # Commit the changes to the database
         connection.commit()
 
         # Close the cursor
         cursor.close()
-        connection.close()
 
-        return {"message": f"Registration successful! Now you can log in."}
+        return {"message": f"Welcome onboard, {account.username}"}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
     
@@ -242,7 +367,7 @@ def get_NFTitems():
         cursor.execute(query)
 
         # Define the SQL query to retrieve NFT items
-        query = "SELECT N.item_id, N.token_id, N.item_name, N.image_url, N.price, N.onsell, N.artist, w.wallet_address, A.username FROM NFTitems N INNER JOIN accounts A ON N.wallet_id = A.wallet_id INNER JOIN wallets w ON w.wallet_id = A.wallet_id;"
+        query = "SELECT N.token_id, N.token_id, N.item_name, N.image_url, N.price, N.onsell, N.artist, w.wallet_address, A.username FROM NFTitems N INNER JOIN accounts A ON N.wallet_id = A.wallet_id INNER JOIN wallets w ON w.wallet_id = A.wallet_id;"
 
         # Execute the SQL query
         cursor.execute(query)
@@ -261,6 +386,81 @@ def get_NFTitems():
             return {"message": "No NFT items available!"}
         else:
             return NFTitems
+    except mysql.connector.Error as err:
+        return {"error": f"Error: {err}"}
+    
+@app.put('/sellnft/')
+def update_sell(sell: SellModel):
+    try:
+        connection = mysql.connector.connect(**db_config)
+        # Create a cursor to execute SQL queries
+        cursor = connection.cursor()
+
+        query = '''USE blockaroo_db;'''
+        cursor.execute(query)
+        
+        # Define the SQL query to update the NFT item
+        query = "UPDATE NFTitems SET onsell = true, price = %s WHERE token_id = %s"
+        values = (sell.price, sell.token_id)
+        
+        # Execute the SQL query
+        cursor.execute(query, values)
+        
+        # Commit the changes to the database
+        connection.commit()
+
+        # Close the cursor and the database connection
+        cursor.close()
+        connection.close()
+
+        return {"message": "NFT item updated successfully"}
+    except mysql.connector.Error as err:
+        return {"error": f"Error: {err}"}
+    
+@app.put('/buynft/')
+def buy_nft(buy: BuyModel):
+    try:
+        connection = mysql.connector.connect(**db_config)
+        # Create a cursor to execute SQL queries
+        cursor = connection.cursor()
+
+        query = '''USE blockaroo_db;'''
+        cursor.execute(query)
+        blockaroo_smart_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
+        nonce = w3.eth.getTransactionCount(buy.from_address)
+        
+        
+        buy_transaction = blockaroo_smart_contract.functions.transfer(buy.token_id, buy.to_address).buildTransaction({
+            'chainId': 1337,  # Replace with the chain ID (e.g., 1 for Ethereum mainnet)
+            'gas': 2000000,  # Set the gas limit
+            'gasPrice': w3.eth.gas_price,  # Set the gas price
+            'nonce': nonce + 1,
+        })
+        
+        query = "SELECT private_key FROM wallets WHERE wallet_address = %s"
+        values = (buy.from_address)
+        cursor.execute(query, values)
+        private_key = cursor.fetchone()[0]
+        
+        signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=private_key)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        
+        # Define the SQL query to update the NFT item
+        query = "UPDATE NFTitems SET onsell = false, wallet_id = %s WHERE token_id = %s"
+        values = (buy.wallet_id, buy.token_id)
+        
+        # Execute the SQL query
+        cursor.execute(query, values)
+        
+        # Commit the changes to the database
+        connection.commit()
+
+        # Close the cursor and the database connection
+        cursor.close()
+        connection.close()
+
+        return {"message": "NFT item updated successfully"}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
 

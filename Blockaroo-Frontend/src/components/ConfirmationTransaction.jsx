@@ -22,6 +22,7 @@
   import { useWallet } from './WalletContext';
   import getItems from '../api/getItems';
   import { useEffect } from 'react';
+  import buyNFT from '../api/buyNFT';
 
   const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -95,12 +96,22 @@
 
     
     const handleFunds = (amount, token) => {
+      if (!itemsData || itemsData.length === 0) {
+        console.error('Items data is not yet populated');
+        return;
+      }
       if (walletState.balance >= amount) {
           deductFunds(amount);
           console.log('New Balance:', walletState.balance);
           setSnackbarSeverity('success');
           setSnackbarMessage('Transaction confirmed successfully');
-          const objectToModify = itemsData.find(item => item.token === token);
+          const objectToModify = itemsData.find(item => item.token_id === token);
+          if (objectToModify) {
+            const storedUsername = sessionStorage.getItem('username');
+            // Your logic to modify the object goes here
+          } else {
+            console.error('Item with token', token, 'not found in Items Data');
+          }
           const storedUsername = sessionStorage.getItem('username');
 
           // Create newTransaction object
@@ -108,7 +119,7 @@
             kind: "ERC721 transfer",
             tokenId: token,
             timestamp: Date.now().toString(),
-            from: objectToModify.walletaddress,
+            from: objectToModify.wallet_address,
             to: walletAddress,
             status: 'success',
             price: objectToModify.price, 
@@ -116,12 +127,13 @@
 
           if (objectToModify) {
             // Modify the specific fields
-            objectToModify.onsell = false;
-            objectToModify.ownedname = storedUsername;
-            objectToModify.walletaddress = {walletAddress};
-            setTransactionHistory(prevTransactionHistory => [...prevTransactionHistory, newTransaction]);
+            buyNFT(objectToModify.token_id, objectToModify.wallet_id, localStorage.getItem('wallet_address'));
+            // objectToModify.onsell = false;
+            // objectToModify.ownedname = storedUsername;
+            // objectToModify.walletaddress = {walletAddress};
+            // setTransactionHistory(prevTransactionHistory => [...prevTransactionHistory, newTransaction]);
 
-            sessionStorage.setItem('transactionHistory', JSON.stringify([...transactionHistory, newTransaction]));
+            // sessionStorage.setItem('transactionHistory', JSON.stringify([...transactionHistory, newTransaction]));
 
           }
 
