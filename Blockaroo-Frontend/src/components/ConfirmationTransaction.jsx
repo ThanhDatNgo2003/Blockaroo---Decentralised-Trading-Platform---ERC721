@@ -123,8 +123,8 @@
             .then((data) => {
               // console.log('Fetched data:', data);
               if (data.hasOwnProperty("message")) {
-                setSnackbarSeverity('success');
-                setSnackbarMessage(data.message);
+                window.location.reload();
+                alert(data.message);
               } else {
                 setSnackbarSeverity('error');
                 setSnackbarMessage(data.error);

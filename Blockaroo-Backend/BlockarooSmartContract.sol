@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 contract BlockarooSmartContract {
     address public owner;
     uint256 public tokenId;
+
+    mapping(address => uint256) public balanceOf;
     mapping(uint256 => address) public tokenOwners;
     mapping(uint256 => uint256) public tokenPrices;
 
@@ -17,7 +19,8 @@ contract BlockarooSmartContract {
         require(msg.sender == owner, "Only contract owner can call this function");
         _;
     }
-    
+
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     // Function to get the owner of an NFT with a given token ID
     function getOwner(uint256 _tokenId) external view returns (address) {
@@ -41,20 +44,25 @@ contract BlockarooSmartContract {
         tokenId++; // Increment token ID
         tokenOwners[tokenId] = _to; // Assign ownership
         tokenPrices[tokenId] = _price; // Set the price for the token
+        balanceOf[_to]++; // Increase balance of the recipient
     }
 
-    // Function to transfer ownership of an NFT with a price requirement
-    function transfer(uint256 _tokenId, address _from, address _to) external payable {
-        require(tokenOwners[_tokenId] == _from, "The provided from address is not the owner of this token");
-        require(_to != address(0), "Invalid recipient address");
-        require(msg.value >= tokenPrices[_tokenId], "Insufficient payment for the token");
+// Function to transfer ownership of an NFT with a price requirement
+    function transfer(address _from, address _to, uint256 _tokenId) public {
+        require(tokenOwners[_tokenId] == _from, "The specified from address does not own this token");
 
-        // Transfer ownership
+        _transfer(_from, _to, _tokenId);
+    }
+
+
+    function _transfer(address _from, address _to, uint256 _tokenId) internal {
+        require(_to != address(0), "Transfer to the zero address");
+        require(_to != address(this), "Transfer to the contract itself");
+
         tokenOwners[_tokenId] = _to;
-    
-        // Refund excess payment
-        if (msg.value > tokenPrices[_tokenId]) {
-            payable(msg.sender).transfer(msg.value - tokenPrices[_tokenId]);
-        }
+        balanceOf[_from]--;
+        balanceOf[_to]++;
+
+        emit Transfer(_from, _to, _tokenId);
     }
 }

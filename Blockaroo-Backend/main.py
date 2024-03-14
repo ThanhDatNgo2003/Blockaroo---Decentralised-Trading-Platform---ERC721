@@ -458,11 +458,11 @@ def buy_nft(buy: BuyModel):
         try:
             nonce = w3.eth.get_transaction_count(admin_address)
             blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
-            buy_transaction = blockaroo_smart_contract.functions.transfer(buy.token_id, buy.from_address, buy.to_address).build_transaction(
+            buy_transaction = blockaroo_smart_contract.functions.transfer(buy.from_address, buy.to_address, buy.token_id).build_transaction(
             {
                 "chainId": 1337,
+                "gas": 2000000,
                 "gasPrice": w3.eth.gas_price,
-                "from": buy.from_address,
                 "nonce": nonce,
             })     
         
