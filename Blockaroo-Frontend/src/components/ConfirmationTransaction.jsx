@@ -125,6 +125,10 @@
         console.error('Items data is not yet populated');
         return;
       }
+      if (from === to) {
+        alert("You can't buy your owned NFT");
+        return;
+      }
       if (parseFloat(balance.wallet_balance) >= parseFloat(amount)) {
           console.log('New Balance:', walletState.balance);
           const objectToModify = itemsData.find(item => item.token_id === token);
@@ -216,7 +220,7 @@
               onClick={() => { 
                 handleConfirm(); 
                 const Amount = parseFloat(amount);
-                handleFunds(Amount, token); 
+                handleFunds(Amount, token, from, to); 
               }} 
               color="primary" 
               variant="contained"

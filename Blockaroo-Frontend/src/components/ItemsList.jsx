@@ -27,6 +27,7 @@ import SortByAlphaRoundedIcon from '@mui/icons-material/SortByAlphaRounded';
 import { useNavigate } from 'react-router-dom';
 import Backdrop from '@mui/material/Backdrop';
 import getItems from '../api/getItems';
+import searchItems from '../api/getSearch.js';
 import { useEffect } from 'react';
 
 
@@ -182,6 +183,25 @@ const ItemsList = () => {
 
 
   const [itemsData, setItemsData] = useState([])
+  const [searchResults, setSearchResults] = useState([]);
+  
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      if (searchTerm) {
+        const response = await searchItems(searchTerm); // Use the searchItems function
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]); // Clear search results when search term is empty
+      }
+    } catch (error) {
+      console.error('Error searching for NFT items:', error.message);
+    }
+  };
+
+  fetchData();
+
+}, [searchTerm]);
 
 
   useEffect(() => {

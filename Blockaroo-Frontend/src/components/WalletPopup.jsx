@@ -70,7 +70,7 @@ export default function WalletPopup() {
       >
         <img className="ethereumicon" src="ethereum.png" alt="Ethereum Coin" loading="lazy" />
         <Typography noWrap component="div" sx={{ color: '#7986cc', fontWeight: '500', fontSize: '17px', paddingRight: '10px', margin: '4px' }}>
-        {`Balance: ${parseFloat(balance.wallet_balance).toFixed(2)} ETH`}
+        {`Balance: ${parseFloat(balance.wallet_balance).toFixed(6)} ETH`}
         </Typography>
       </Box>
       <Snackbar
