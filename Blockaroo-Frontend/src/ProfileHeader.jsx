@@ -1,18 +1,23 @@
 import { useSelector } from "react-redux";
 import { useWallet } from './components/WalletContext';
+import { useEffect } from "react";
+import { useState } from "react";
 
 
 const Header = (props) => {
     const {setEdit} = props;
     const user = useSelector((state) => state.user);
-    const { walletAddress } = useWallet(); // Using useWallet hook to get the walletAddress
+    const [walletAddress, setWalletAddress] = useState('');
 
+    useEffect(() => {
+        const address = localStorage.getItem('wallet_address');
+        setWalletAddress(address);
+    }, []);
 
     const handleEdit = () => {
         setEdit(true);
     }
 
-    localStorage.getItem(walletAddress);
 
 
     return (

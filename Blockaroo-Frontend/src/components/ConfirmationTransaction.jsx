@@ -23,6 +23,7 @@
   import getItems from '../api/getItems';
   import { useEffect } from 'react';
   import buynft from '../api/buyNFT';
+  import getBalance from '../api/getBalance';
 
   const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -55,6 +56,7 @@
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const { walletAddress, walletState, deductFunds } = useWallet();
     const [transactionHistory, setTransactionHistory] = useState([]);
+    const [balance, setBalance] = useState('');
     
     const [itemsData, setItemsData] = useState([])
     useEffect(() => {
@@ -81,6 +83,20 @@
       const storedTransactionHistory = JSON.parse(sessionStorage.getItem('transactionHistory')) || [];
       setTransactionHistory(storedTransactionHistory);
     }, []);
+
+    useEffect(() => {
+      getBalance(localStorage.getItem('wallet_address'))
+        .then((res) => res.data)
+        .then((data) => {
+          // console.log('Fetched data:', data);
+          if (data.hasOwnProperty("wallet_balance")) {
+            setBalance(data)  }
+          })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    }, []);
+    console.log(balance.wallet_balance);
 
     const getCurrentFormattedDateTime = () => {
       const dateOptions = {
@@ -109,15 +125,14 @@
         console.error('Items data is not yet populated');
         return;
       }
-      if (walletState.balance >= amount) {
-          deductFunds(amount);
+      if (parseFloat(balance.wallet_balance) >= parseFloat(amount)) {
           console.log('New Balance:', walletState.balance);
           const objectToModify = itemsData.find(item => item.token_id === token);
           if (objectToModify) {
             buynft({
               token_id: objectToModify.token_id,
               from_address: (objectToModify.wallet_address), // Assuming wallet_address holds the sender's address
-              to_address: (localStorage.getItem('wallet_address'))
+              to_address: (localStorage.getItem('wallet_address'))  
             })
             .then((res) => res.data)
             .then((data) => {
@@ -127,7 +142,7 @@
                 alert(data.message);
               } else {
                 setSnackbarSeverity('error');
-                setSnackbarMessage(data.error);
+                setSnackbarMessage('Fail to buy this NFT. Please checked and try again later.');
               }
             })
             .catch((error) => {
@@ -150,18 +165,6 @@
           //   status: 'success',
           //   price: objectToModify.price, 
           // };
-
-          // if (objectToModify) {
-          //   // Modify the specific fields
-
-          //   // objectToModify.onsell = false;
-          //   // objectToModify.ownedname = storedUsername;
-          //   // objectToModify.walletaddress = {walletAddress};
-          //   // setTransactionHistory(prevTransactionHistory => [...prevTransactionHistory, newTransaction]);
-
-          //   // sessionStorage.setItem('transactionHistory', JSON.stringify([...transactionHistory, newTransaction]));
-
-          // }
 
           
           const jsonString = JSON.stringify(itemsData, null, 2);

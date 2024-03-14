@@ -20,7 +20,8 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField'; // Import TextField for input
 import getItems from '../api/getItems';
-import sellNFT from '../api/sellNFT';
+import { useEffect } from 'react';
+import sellnft from '../api/sellNFT';
 
 const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -36,15 +37,22 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
   const [itemsData, setItemsData] = useState([])
 
 
-  getItems()
-  .then((res) => res.data)
-  .then((data) => {
-    if (data.hasOwnProperty("message")) {
-      alert(data.message);
-    } else {
-      setItemsData(data.NFTItems);
-    }
-  });
+  useEffect(() => {
+    getItems()
+      .then((res) => res.data)
+      .then((data) => {
+        // console.log('Fetched data:', data);
+        if (data.hasOwnProperty("message")) {
+          // Handle error message if needed
+        } else {
+          // Update itemsData state with the fetched data
+          setItemsData(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
   const getCurrentFormattedDateTime = () => {
     const dateOptions = {
@@ -67,26 +75,37 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
     return `${formattedDate} ${formattedTime}`;
   };
 
-  const handleSellSuccess = (token, price) => {
-    setSnackbarSeverity('success');
-    setSnackbarMessage('Your NFT has been listed on the marketplace successfully');
-    const objectToModify = itemsData.find((item) => item.token === token);
-    if (objectToModify) {
-      sellNFT(objectToModify.token_id, objectToModify.price);
-      // objectToModify.onsell = true;
-      // objectToModify.price = price;
+  const handleSellSuccess = (token, image, price) => {
+    if (!enteredPrice.trim()) {
+      alert('Please enter a price.');
+      return;
     }
-    const jsonString = JSON.stringify(itemsData, null, 2);
-    console.log(jsonString);
-    setSnackbarOpen(true);
+    const objectToModify = itemsData.find(item => item.token_id === token);
+    if (objectToModify) {
+      sellnft({
+        token_id: objectToModify.token_id, 
+        price: price,
+        wallet_address: (localStorage.getItem('wallet_address'))
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        // console.log('Fetched data:', data);
+        if (data.hasOwnProperty("message")) {
+          window.location.reload();
+          alert(data.message);
+        } else {
+          alert(data.error);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+    } else {
+      console.error('Item with token', token, 'not found in Your Collection');
+    }
   };
 
-  const handleCopyToken = () => {
-    navigator.clipboard.writeText(token);
-    setSnackbarSeverity('success');
-    setSnackbarMessage('Token copied to clipboard');
-    setSnackbarOpen(true);
-  };
+
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -115,10 +134,7 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
         >
           <img className="itemtransaction" src={image} alt="Item Transaction" loading="lazy" />
           <DialogContentText padding="5px">
-            {token ? `0x${token.slice(2, 7)}...${token.slice(-5)}` : 'Token not available'}
-            <IconButton onClick={handleCopyToken}>
-              <FileCopyIcon sx={{ fontSize: '15px' }} />
-            </IconButton>
+            {'Token ID: ' + token }
           </DialogContentText>
           <TableContainer>
           <Table>
@@ -137,6 +153,7 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
             onChange={(e) => setEnteredPrice(e.target.value)}
             fullWidth
             margin="normal"
+            required
           />
         </DialogContent>
         <DialogActions>
@@ -147,7 +164,7 @@ const ConfirmSellPopup = ({ token, image, open, handleClose, handleSell }) => {
             onClick={() => {
               handleSell();
               const Price = parseFloat(enteredPrice);
-              handleSellSuccess(token, Price);
+              handleSellSuccess(token, image, Price);
             }}
             color="primary"
             variant="contained"

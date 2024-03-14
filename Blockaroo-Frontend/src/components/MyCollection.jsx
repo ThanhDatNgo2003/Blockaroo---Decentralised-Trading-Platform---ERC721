@@ -17,6 +17,7 @@ import {
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ConfirmSellPopup from './SellNFT';
 import { useWallet } from './WalletContext';
+import { useEffect } from 'react';
 import getItems from '../api/getItems';
 
 const Search = styled('div')(({ theme }) => ({
@@ -173,19 +174,27 @@ const MyCollection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSellOpen, setSellOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [filteredItems, setFilteredItems] = useState([]);
 
   const [itemsData, setItemsData] = useState([])
 
+  useEffect(() => {
+    getItems()
+      .then((res) => res.data)
+      .then((data) => {
+        // console.log('Fetched data:', data);
+        if (data.hasOwnProperty("message")) {
+          // Handle error message if needed
+        } else {
+          // Update itemsData state with the fetched data
+          setItemsData(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
-  getItems()
-  .then((res) => res.data)
-  .then((data) => {
-    if (data.hasOwnProperty("message")) {
-      alert(data.message);
-    } else {
-      setItemsData(data.NFTItems);
-    }
-  });
 
   const { walletAddress } = useWallet();
 
@@ -210,16 +219,25 @@ const MyCollection = () => {
       setSellOpen(true);
   };
 
+  useEffect(() => {
+    if (itemsData && itemsData.length > 0) {
+      const itemWalletAddress = itemsData.filter((item) => item.wallet_address === localStorage.getItem('wallet_address'));
+      const filtered = itemWalletAddress.filter((item) =>
+        item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    }
+  }, [itemsData, searchTerm])
 
-  const MyNFT = itemsData.filter((item) => {
-    const itemWalletAddress = item.walletaddress?.walletAddress;
-    return itemWalletAddress === walletAddress;
-  });
+  // const MyNFT = itemsData.filter((item) => {
+  //   const itemWalletAddress = item.walletaddress?.walletAddress;
+  //   return itemWalletAddress === walletAddress;
+  // });
   
   
-  const filteredItems = MyNFT.filter((items) =>
-    items.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredItems = MyNFT.filter((items) =>
+  //   items.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const itemsPerPage = 12; // 6 rows x 3 items per row = 18 items
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -253,14 +271,13 @@ const MyCollection = () => {
           <ItemContainer key={items.token} items xs={6} sm={4} md={3} lg={4} xl={3}>
           <div>
             <ItemsInfo
-            token={items.token}
-            name={items.name}
-            ownedname={items.ownedname}
-            ownedavatar={items.ownedavatar}
-            image={items.image}
+            token={items.token_id}
+            name={items.item_name}
+            ownedname={items.username}
+            ownedavatar={'./useravatar.jpg'}
+            image={items.image_url}
             price={items.price}
-            artist={items.artists}
-            remainingTime={items.remainingTime}
+            artist={items.artist}
             onBuyClick={() => handleBuyButtonClick(items)}
             onViewDetailsClick={() => handleViewDetailsClick(items)}
             onSell={items.onsell}
@@ -271,10 +288,10 @@ const MyCollection = () => {
       </Grid>
      
       <ConfirmSellPopup
-        token={selectedItem ? selectedItem.token : null}
+        token={selectedItem ? selectedItem.token_id : null}
         from={'0x0B97D...a820d'}
         to={'0x0Af3b...2845f'}
-        image={selectedItem ? selectedItem.image : ''}
+        image={selectedItem ? selectedItem.image_url : ''}
         amount={selectedItem ? selectedItem.price : 0}
         open={isSellOpen}
         handleClose={handleCloseSell}

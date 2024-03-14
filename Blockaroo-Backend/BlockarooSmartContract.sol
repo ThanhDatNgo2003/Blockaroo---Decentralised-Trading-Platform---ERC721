@@ -21,6 +21,8 @@ contract BlockarooSmartContract {
     }
 
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    event PriceUpdated(uint256 indexed tokenId, uint256 oldPrice, uint256 newPrice);
+
 
     // Function to get the owner of an NFT with a given token ID
     function getOwner(uint256 _tokenId) external view returns (address) {
@@ -34,10 +36,18 @@ contract BlockarooSmartContract {
         return tokenPrices[_tokenId];
     }
 
-    function updatePrice(uint256 _tokenId, uint256 _newPrice) external onlyOwner {
+    // Function to update the price of an NFT with a given token ID
+    function updatePrice(uint256 _tokenId, uint256 _newPrice, address _from) public{
+        require(_from == tokenOwners[_tokenId], "The specified from address does not own this token");
         require(tokenOwners[_tokenId] != address(0), "Token with given ID does not exist");
+        require(_newPrice > 0, "Price must be greater than 0");
+
+        uint256 oldPrice = tokenPrices[_tokenId];
         tokenPrices[_tokenId] = _newPrice;
+
+        emit PriceUpdated(_tokenId, oldPrice, _newPrice);
     }
+
 
     // Function to mint a new NFT with a given price
     function mint(address _to, uint256 _price) external onlyOwner {
@@ -47,13 +57,13 @@ contract BlockarooSmartContract {
         balanceOf[_to]++; // Increase balance of the recipient
     }
 
-// Function to transfer ownership of an NFT with a price requirement
-    function transfer(address _from, address _to, uint256 _tokenId) public {
-        require(tokenOwners[_tokenId] == _from, "The specified from address does not own this token");
+    // Function to transfer ownership of an NFT with a price requirement
+    function transfer(address _to, uint256 _tokenId) public {
+        address from = msg.sender;
+        require(tokenOwners[_tokenId] == from, "You do not own this token");
 
-        _transfer(_from, _to, _tokenId);
+        _transfer(from, _to, _tokenId);
     }
-
 
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
         require(_to != address(0), "Transfer to the zero address");
