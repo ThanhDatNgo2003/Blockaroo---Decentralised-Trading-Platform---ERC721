@@ -2,5 +2,5 @@
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "020503"
+    "password": "Taikhoandabihack@0805"
 }

@@ -1,5 +1,5 @@
 import typing
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import json
@@ -566,6 +566,33 @@ def get_balance(wallet_address):
         return {"wallet_balance": balance_eth}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve balance: {str(e)}")
+    
+@app.get("/NFTitems/search")
+def search_NFTitems(keyword: str = Query(...)):
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        query = '''USE blockaroo_db;'''
+        cursor.execute(query)
+
+        # Define the SQL query to search for NFT items based on the keyword
+        query = f"SELECT N.token_id, N.item_name, N.image_url, N.price, N.onsell, N.artist, w.wallet_address, A.username FROM NFTitems N INNER JOIN accounts A ON N.wallet_id = A.wallet_id INNER JOIN wallets w ON w.wallet_id = A.wallet_id WHERE N.item_name LIKE '%{keyword}%' OR N.artist LIKE '%{keyword}%';"
+
+        cursor.execute(query)
+
+        result = cursor.fetchall()
+
+        NFTitems = [dict(zip(cursor.column_names, row)) for row in result]
+
+        cursor.close()
+
+        if (len(NFTitems) == 0):
+            return {"message": f"No NFT items found matching the keyword: {keyword}"}
+        else:
+            return NFTitems
+    except mysql.connector.Error as err:
+        return {"error": f"Error: {err}"}
 
 
 init()
