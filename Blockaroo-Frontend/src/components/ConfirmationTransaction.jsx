@@ -112,15 +112,29 @@
       if (walletState.balance >= amount) {
           deductFunds(amount);
           console.log('New Balance:', walletState.balance);
-          setSnackbarSeverity('success');
-          setSnackbarMessage('Transaction confirmed successfully');
           const objectToModify = itemsData.find(item => item.token_id === token);
           if (objectToModify) {
             buynft({
               token_id: objectToModify.token_id,
               from_address: (objectToModify.wallet_address), // Assuming wallet_address holds the sender's address
               to_address: (localStorage.getItem('wallet_address'))
+            })
+            .then((res) => res.data)
+            .then((data) => {
+              // console.log('Fetched data:', data);
+              if (data.hasOwnProperty("message")) {
+                setSnackbarSeverity('success');
+                setSnackbarMessage(data.message);
+              } else {
+                setSnackbarSeverity('error');
+                setSnackbarMessage(data.error);
+              }
+            })
+            .catch((error) => {
+              console.error('Error fetching data:', error);
             });
+            
+
           } else {
             console.error('Item with token', token, 'not found in Items Data');
           }

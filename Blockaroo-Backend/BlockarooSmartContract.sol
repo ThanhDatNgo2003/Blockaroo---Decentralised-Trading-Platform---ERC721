@@ -17,6 +17,7 @@ contract BlockarooSmartContract {
         require(msg.sender == owner, "Only contract owner can call this function");
         _;
     }
+    
 
     // Function to get the owner of an NFT with a given token ID
     function getOwner(uint256 _tokenId) external view returns (address) {
@@ -43,14 +44,14 @@ contract BlockarooSmartContract {
     }
 
     // Function to transfer ownership of an NFT with a price requirement
-    function transfer(uint256 _tokenId, address _to) external payable {
-        require(tokenOwners[_tokenId] == msg.sender, "You are not the owner of this token");
+    function transfer(uint256 _tokenId, address _from, address _to) external payable {
+        require(tokenOwners[_tokenId] == _from, "The provided from address is not the owner of this token");
         require(_to != address(0), "Invalid recipient address");
         require(msg.value >= tokenPrices[_tokenId], "Insufficient payment for the token");
 
         // Transfer ownership
         tokenOwners[_tokenId] = _to;
-        
+    
         // Refund excess payment
         if (msg.value > tokenPrices[_tokenId]) {
             payable(msg.sender).transfer(msg.value - tokenPrices[_tokenId]);

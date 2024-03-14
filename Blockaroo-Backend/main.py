@@ -103,7 +103,7 @@ if "CONTRACT_ADDRESS" not in os.environ:
     tx_receipt = None
     while tx_receipt is None:
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        time.sleep(0.5)  # Sleep for 1 second before checking again
+        time.sleep(0.1)  # Sleep for 1 second before checking again
         
     os.environ["CONTRACT_ADDRESS"] = tx_receipt["contractAddress"]
     print (os.environ["CONTRACT_ADDRESS"])
@@ -233,7 +233,7 @@ def init ():
                         tx_receipt = None
                         while tx_receipt is None:
                             tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-                            time.sleep(0.5)  # Sleep for 1 second before checking again
+                            time.sleep(0.1)  # Sleep for 1 second before checking again
                         
                         # print (tx_receipt["contractAddress"])
                         # print (os.environ["CONTRACT_ADDRESS"])
@@ -446,7 +446,7 @@ def buy_nft(buy: BuyModel):
         connection = mysql.connector.connect(**db_config)
         # Create a cursor to execute SQL queries
         cursor = connection.cursor()
-        print(buy.from_address, buy.to_address, buy.token_id)
+        print(buy.from_address, buy.to_address)
         query = '''USE blockaroo_db;'''
         cursor.execute(query)
         
@@ -455,23 +455,26 @@ def buy_nft(buy: BuyModel):
         cursor.execute(query, values)
         user_private_key = cursor.fetchone()[0]
         print (user_private_key)
+        try:
+            nonce = w3.eth.get_transaction_count(admin_address)
+            blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
+            buy_transaction = blockaroo_smart_contract.functions.transfer(buy.token_id, buy.from_address, buy.to_address).build_transaction(
+            {
+                "chainId": 1337,
+                "gasPrice": w3.eth.gas_price,
+                "from": buy.from_address,
+                "nonce": nonce,
+            })     
         
-        nonce = w3.eth.get_transaction_count(admin_address)
-        blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
-        buy_transaction = blockaroo_smart_contract.functions.transfer(buy.token_id, buy.to_address).build_transaction(
-        {
-            "chainId": 1337,
-            "gasPrice": w3.eth.gas_price,
-            "from": buy.from_address,
-            "nonce": nonce,
-        })     
-        signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=user_private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        tx_receipt = None
-        while tx_receipt is None:
-            tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-            time.sleep(0.5)  # Sleep for 1 second before checking again
-        
+            signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=user_private_key)
+            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+            tx_receipt = None
+            while tx_receipt is None:
+                tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+                time.sleep(0.5)  # Sleep for 1 second before checking again
+        except Exception as e:
+            print(e)
+            return {f"Error: {e}"}
 
         
         # Define the SQL query to update the NFT item
@@ -497,7 +500,7 @@ def buy_nft(buy: BuyModel):
         cursor.close()
         connection.close()
 
-        return {"message": "NFT item updated successfully", "id": buy.token_id, "from": buy.from_address, "to": buy.to_address}
+        return {"message": "Transaction confirmed successfully"}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
     
