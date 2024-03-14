@@ -18,6 +18,23 @@ contract BlockarooSmartContract {
         _;
     }
 
+    // Function to get the owner of an NFT with a given token ID
+    function getOwner(uint256 _tokenId) external view returns (address) {
+        require(tokenOwners[_tokenId] != address(0), "Token with given ID does not exist");
+        return tokenOwners[_tokenId];
+    }
+
+    // Function to get the price of an NFT with a given token ID
+    function getPrice(uint256 _tokenId) external view returns (uint256) {
+        require(tokenOwners[_tokenId] != address(0), "Token with given ID does not exist");
+        return tokenPrices[_tokenId];
+    }
+
+    function updatePrice(uint256 _tokenId, uint256 _newPrice) external onlyOwner {
+        require(tokenOwners[_tokenId] != address(0), "Token with given ID does not exist");
+        tokenPrices[_tokenId] = _newPrice;
+    }
+
     // Function to mint a new NFT with a given price
     function mint(address _to, uint256 _price) external onlyOwner {
         tokenId++; // Increment token ID

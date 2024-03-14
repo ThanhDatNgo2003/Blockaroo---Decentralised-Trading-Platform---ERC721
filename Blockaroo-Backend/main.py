@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import json
 from setting import db_config
 from web3 import Web3, HTTPProvider
+import time
+import os
 
 # Import solcx in the FastAPI
 from solcx import compile_standard, install_solc
@@ -15,7 +17,7 @@ import mysql.connector
 app = FastAPI()
 
 origins = ["*"]
-
+ 
 
 
 
@@ -43,8 +45,8 @@ class SellModel(BaseModel):
 # Buy Interface
 class BuyModel(BaseModel):
     token_id: int
-    from_address: int
-    to_address: int
+    from_address: str
+    to_address: str
     
     # W3 Config
 w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
@@ -57,6 +59,8 @@ with open("./BlockarooSmartContract.sol", "r") as file:
         smart_contract_file = file.read()
         
         # Uses the compile_standard method of the solcx library to compile the contract source file and stores the result of the compilation into the variable compiled_sol
+        
+install_solc("0.8.0")
 compiled_sol = compile_standard(
 {
     "language": "Solidity",
@@ -84,6 +88,8 @@ BlockarooSmartContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
 with open('./blockaroodata/ItemsNFT.json') as file:
     items = json.load(file)
+    
+tx_receipt = None
 
 def init ():
     try:
@@ -117,7 +123,7 @@ def init ():
             token_id INT AUTO_INCREMENT PRIMARY KEY,
             item_name VARCHAR(50) NOT NULL,
             image_url VARCHAR(255) NOT NULL,
-            price DECIMAL(10, 2) NOT NULL,
+            price INT UNSIGNED NOT NULL,
             onsell BOOLEAN NOT NULL,
             artist VARCHAR(50) NOT NULL,
             wallet_id INT,
@@ -170,7 +176,7 @@ def init ():
             from_address VARCHAR(50) NOT NULL,
             to_address VARCHAR(50) NOT NULL,
             date TIMESTAMP NOT NULL,
-            contract_address VARCHAR(50) NOT NULL,
+            transaction_hash VARCHAR(50) NOT NULL,
             FOREIGN KEY (token_id) REFERENCES NFTItems(token_id)
         );'''
         cursor.execute(query)
@@ -181,23 +187,26 @@ def init ():
         count = cursor.fetchone()[0]
 
         if count == 0:
-            try:
-                nonce = w3.eth.get_transaction_count(admin_address)
-                transaction = BlockarooSmartContract.constructor().build_transaction(
-                {
-                    "chainId": 1337,
-                    "gasPrice": w3.eth.gas_price,
-                    "from": admin_address,
-                    "nonce": nonce,
-                })
-                transaction.pop('to')
-                signed_txn = w3.eth.account.sign_transaction(transaction, private_key=admin_private_key)
-                tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            nonce = w3.eth.get_transaction_count(admin_address)
+            transaction = BlockarooSmartContract.constructor().build_transaction(
+            {
+                "chainId": 1337,
+                "gasPrice": w3.eth.gas_price,
+                "from": admin_address,
+                "nonce": nonce,
+            })
+            transaction.pop('to')
+            signed_txn = w3.eth.account.sign_transaction(transaction, private_key=admin_private_key)
+            tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            tx_receipt = None
+            while tx_receipt is None:
                 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-                print (tx_receipt["contractAddress"])
+                time.sleep(0.5)  # Sleep for 1 second before checking again
+            
+            os.environ["CONTRACT_ADDRESS"] = tx_receipt["contractAddress"]
+            print (os.environ["CONTRACT_ADDRESS"])
+            
                 # If NFTItems table is empty, insert data
-            except Exception as error:
-                print(error)
             for item in items:
                 sql = '''INSERT INTO NFTItems (item_name, image_url, price, onsell, artist, wallet_id) 
                          VALUES (%s, %s, %s, %s, %s, %s)'''
@@ -209,23 +218,30 @@ def init ():
                 if(result != None):
                     key = dict(zip(cursor.column_names, result))
                     try:
-                        
-                        blockaroo_smart_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
-                        
-                        mint_transaction = blockaroo_smart_contract.functions.mint(key['wallet_address'], int(item['price'])).build_transaction(
+                        price_in_wei = int(item['price'] * 10**18)
+                        nonce = w3.eth.get_transaction_count(admin_address)
+                        blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
+                        print("Price:", item['price'])
+                        mint_transaction = blockaroo_smart_contract.functions.mint(key['wallet_address'], price_in_wei).build_transaction(
                         {
                             "chainId": 1337,
-                            "gas": 2000000,
                             "gasPrice": w3.eth.gas_price,
-                            "nonce": nonce + 1,
-                            "from": key['wallet_address'],  # Add the sender address
-                            "value": 0, # Set value to 0 (non-payable function)
+                            "from": key["wallet_address"],
+                            "nonce": nonce,
                         })     
                         signed_tx = w3.eth.account.sign_transaction(mint_transaction, private_key=key["private_key"])
                         tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-                        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+                        tx_receipt = None
+                        while tx_receipt is None:
+                            tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+                            time.sleep(0.5)  # Sleep for 1 second before checking again
                         
-                        print (tx_receipt["contractAddress"])
+                        # print (tx_receipt["contractAddress"])
+                        # print (os.environ["CONTRACT_ADDRESS"])
+                        
+                    
+                        # blockaroo_smart_contract.functions.getPrice(10).call()
+                        
                           
                         # contract_address = tx_receipt["contractAddress"]
                         
@@ -240,7 +256,7 @@ def init ():
                     except Exception as error:
                         print(error)
 
-                print("Init Success")
+            print("Init Success")
 
         connection.commit()
 
@@ -270,8 +286,9 @@ def login(account: Account):
         result = cursor.fetchone()
         print(account.username)
 
-        query = "SELECT w.wallet_address FROM accounts a INNER JOIN wallets w ON a.wallet_id = w.wallet_id;"
-        cursor.execute(query)
+        query = "SELECT w.wallet_address FROM wallets w INNER JOIN accounts a ON a.wallet_id = w.wallet_id WHERE a.username = %s"
+        value = (account.username,)
+        cursor.execute(query, value)
         wallet_address = cursor.fetchone()
 
         # Close the cursor  
@@ -403,6 +420,13 @@ def update_sell(sell: SellModel):
         query = "UPDATE NFTitems SET onsell = true, price = %s WHERE token_id = %s"
         values = (sell.price, sell.token_id)
         
+        blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
+        
+        new_price_in_wei = int(sell.price * 10**18)
+        
+        blockaroo_smart_contract.functions.updatePrice(sell.token_id, new_price_in_wei).call()
+        
+        
         # Execute the SQL query
         cursor.execute(query, values)
         
@@ -423,32 +447,45 @@ def buy_nft(buy: BuyModel):
         connection = mysql.connector.connect(**db_config)
         # Create a cursor to execute SQL queries
         cursor = connection.cursor()
-
+        print(buy.from_address, buy.to_address, buy.token_id)
         query = '''USE blockaroo_db;'''
         cursor.execute(query)
-        blockaroo_smart_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
-        nonce = w3.eth.getTransactionCount(buy.from_address)
         
+        # query = "SELECT private_key FROM wallets WHERE wallet_address = %s"
+        # values = (buy.from_address,)
+        # cursor.execute(query, values)
+        # private_key = cursor.fetchone()[0]
         
-        buy_transaction = blockaroo_smart_contract.functions.transfer(buy.token_id, buy.to_address).buildTransaction({
-            'chainId': 1337,  # Replace with the chain ID (e.g., 1 for Ethereum mainnet)
-            'gas': 2000000,  # Set the gas limit
-            'gasPrice': w3.eth.gas_price,  # Set the gas price
-            'nonce': nonce + 1,
-        })
+        # nonce = w3.eth.get_transaction_count(admin_address)
+        # blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
+        # buy_transaction = blockaroo_smart_contract.functions.mint(buy.token_id, buy.token_id).build_transaction(
+        # {
+        #     "chainId": 1337,
+        #     "gasPrice": w3.eth.gas_price,
+        #     "from": buy.from_address,
+        #     "nonce": nonce,
+        # })     
+        # signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=private_key)
+        # tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        # tx_receipt = None
+        # while tx_receipt is None:
+        #     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        #     time.sleep(0.5)  # Sleep for 1 second before checking again
         
-        query = "SELECT private_key FROM wallets WHERE wallet_address = %s"
-        values = (buy.from_address)
-        cursor.execute(query, values)
-        private_key = cursor.fetchone()[0]
-        
-        signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
         
         # Define the SQL query to update the NFT item
+        # Retrieve the wallet_id corresponding to the wallet_address
+        query = "SELECT wallet_id FROM wallets WHERE wallet_address = %s"
+        values = (buy.to_address,)
+        cursor.execute(query, values)
+        wallet_id = cursor.fetchone()[0]
+
+        # Update the wallet_id of the NFT item in the NFTitems table
         query = "UPDATE NFTitems SET onsell = false, wallet_id = %s WHERE token_id = %s"
-        values = (buy.wallet_id, buy.token_id)
+        values = (wallet_id, buy.token_id)
+        cursor.execute(query, values)
+
         
         # Execute the SQL query
         cursor.execute(query, values)
@@ -460,9 +497,21 @@ def buy_nft(buy: BuyModel):
         cursor.close()
         connection.close()
 
-        return {"message": "NFT item updated successfully"}
+        return {"message": "NFT item updated successfully", "id": buy.token_id, "from": buy.from_address, "to": buy.to_address}
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
+    
+@app.get('/getbalance/')
+def get_balance(wallet_address):
+    # Get the balance of the wallet address in Wei
+    balance_wei = w3.eth.get_balance(wallet_address)
+
+    # Convert the balance from Wei to Ether
+    balance_eth = w3.from_wei(balance_wei, 'ether')
+
+    print("Balance (Ether):", balance_eth)
+    
+    return {"wallet_balance": balance_eth}
 
 
 init()

@@ -132,8 +132,8 @@ const ItemDetails = ({ token, name, from, to, ownedname, image, amount, artist, 
     </Dialog>
     <ConfirmTransactionPopup
       token={token}
-      from={'0x0B97D...a820d'}
-      to={'0x0Af3b...2845f'}
+      from={from}
+      to={to}
       image={image}
       amount={amount}
       open={isConfirmationOpen}

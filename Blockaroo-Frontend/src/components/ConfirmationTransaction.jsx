@@ -22,7 +22,7 @@
   import { useWallet } from './WalletContext';
   import getItems from '../api/getItems';
   import { useEffect } from 'react';
-  import buyNFT from '../api/buyNFT';
+  import buynft from '../api/buyNFT';
 
   const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -107,39 +107,43 @@
           setSnackbarMessage('Transaction confirmed successfully');
           const objectToModify = itemsData.find(item => item.token_id === token);
           if (objectToModify) {
-            const storedUsername = sessionStorage.getItem('username');
-            // Your logic to modify the object goes here
+            buynft({
+              token_id: objectToModify.token_id,
+              from_address: objectToModify.wallet_address, // Assuming wallet_address holds the sender's address
+              to_address: localStorage.getItem('wallet_address')
+            });
           } else {
             console.error('Item with token', token, 'not found in Items Data');
           }
           const storedUsername = sessionStorage.getItem('username');
 
           // Create newTransaction object
-          const newTransaction = {
-            kind: "ERC721 transfer",
-            tokenId: token,
-            timestamp: Date.now().toString(),
-            from: objectToModify.wallet_address,
-            to: walletAddress,
-            status: 'success',
-            price: objectToModify.price, 
-          };
+          // const newTransaction = {
+          //   kind: "ERC721 transfer",
+          //   tokenId: token,
+          //   timestamp: Date.now().toString(),
+          //   from: objectToModify.wallet_address,
+          //   to: localStorage.getItem('wallet_address'),
+          //   status: 'success',
+          //   price: objectToModify.price, 
+          // };
 
-          if (objectToModify) {
-            // Modify the specific fields
-            buyNFT(objectToModify.token_id, objectToModify.wallet_id, localStorage.getItem('wallet_address'));
-            // objectToModify.onsell = false;
-            // objectToModify.ownedname = storedUsername;
-            // objectToModify.walletaddress = {walletAddress};
-            // setTransactionHistory(prevTransactionHistory => [...prevTransactionHistory, newTransaction]);
+          // if (objectToModify) {
+          //   // Modify the specific fields
 
-            // sessionStorage.setItem('transactionHistory', JSON.stringify([...transactionHistory, newTransaction]));
+          //   // objectToModify.onsell = false;
+          //   // objectToModify.ownedname = storedUsername;
+          //   // objectToModify.walletaddress = {walletAddress};
+          //   // setTransactionHistory(prevTransactionHistory => [...prevTransactionHistory, newTransaction]);
 
-          }
+          //   // sessionStorage.setItem('transactionHistory', JSON.stringify([...transactionHistory, newTransaction]));
+
+          // }
 
           
           const jsonString = JSON.stringify(itemsData, null, 2);
           console.log(jsonString);
+        
       } else {
         setSnackbarSeverity('error');
         setSnackbarMessage('Insufficient funds for transaction.');
@@ -149,12 +153,6 @@
     };
     
 
-    const handleCopyToken = () => {
-      navigator.clipboard.writeText(token);
-      setSnackbarSeverity('success');
-      setSnackbarMessage('Token copied to clipboard');
-      setSnackbarOpen(true);
-    };
     
 
     const handleSnackbarClose = (event, reason) => {
@@ -177,12 +175,6 @@
         <Divider />
         <DialogContent sx={{ display: 'flex', justifyContent:'center', flexDirection:'column', alignItems: 'center', flexWrap: 'wrap', padding:'10px 10px 5px 10px' }}>
           <img className="itemtransaction" src={image} alt="Item Transaction" loading="lazy"></img>
-          <DialogContentText padding='5px'>
-            {token ? `0x${token.slice(2, 7)}...${token.slice(-5)}` : 'Token not available'}
-            <IconButton onClick={handleCopyToken}>
-              <FileCopyIcon sx={{ fontSize: '15px'}} />
-            </IconButton>
-          </DialogContentText>
           <DialogContentText>
             {amount} ETH
           </DialogContentText>

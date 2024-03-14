@@ -295,9 +295,6 @@ const ItemsList = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredItems.slice(startIndex, endIndex);
 
-  console.log('item:', itemsData);
-  console.log('Fill:', filteredItems);
-  console.log('current:', currentItems);
 
   return (
     <RootContainer>
@@ -377,8 +374,8 @@ const ItemsList = () => {
       <ItemDetails
         token={selectedItem ? selectedItem.token_id : null}
         name={selectedItem ? selectedItem.item_name : null}
-        from={'0x0B97D...a820d'}
-        to={'0x0Af3b...2845f'}
+        from={selectedItem? selectedItem.wallet_address: null}
+        to={localStorage.getItem('wallet_address')}
         ownedname={selectedItem ? selectedItem.username : null}
         image={selectedItem ? selectedItem.image_url : ''}
         amount={selectedItem ? selectedItem.price : 0}
@@ -390,7 +387,7 @@ const ItemsList = () => {
       <ConfirmTransactionPopup
         token={selectedItem ? selectedItem.token_id : null}
         from={selectedItem? selectedItem.wallet_address: null}
-        to={'0x0Af3b...2845f'}
+        to={localStorage.getItem('wallet_address')}
         image={selectedItem ? selectedItem.image_url : ''}
         amount={selectedItem ? selectedItem.price : 0}
         open={isConfirmationOpen}
