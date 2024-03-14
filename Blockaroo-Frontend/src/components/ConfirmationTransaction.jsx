@@ -55,17 +55,26 @@
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const { walletAddress, walletState, deductFunds } = useWallet();
     const [transactionHistory, setTransactionHistory] = useState([]);
+    
     const [itemsData, setItemsData] = useState([])
+    useEffect(() => {
+      getItems()
+        .then((res) => res.data)
+        .then((data) => {
+          // console.log('Fetched data:', data);
+          if (data.hasOwnProperty("message")) {
+            // Handle error message if needed
+          } else {
+            // Update itemsData state with the fetched data
+            setItemsData(data);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    }, []);
 
-    getItems()
-    .then((res) => res.data)
-    .then((data) => {
-      if (data.hasOwnProperty("message")) {
-        alert(data.message);
-      } else {
-        setItemsData(data.NFTItems);
-      }
-    });
+    
 
     useEffect(() => {
       // Load transaction history from local storage on component mount
@@ -109,8 +118,8 @@
           if (objectToModify) {
             buynft({
               token_id: objectToModify.token_id,
-              from_address: objectToModify.wallet_address, // Assuming wallet_address holds the sender's address
-              to_address: localStorage.getItem('wallet_address')
+              from_address: (objectToModify.wallet_address), // Assuming wallet_address holds the sender's address
+              to_address: (localStorage.getItem('wallet_address'))
             });
           } else {
             console.error('Item with token', token, 'not found in Items Data');

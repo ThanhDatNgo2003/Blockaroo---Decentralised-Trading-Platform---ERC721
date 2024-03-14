@@ -88,8 +88,25 @@ BlockarooSmartContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
 with open('./blockaroodata/ItemsNFT.json') as file:
     items = json.load(file)
-    
-tx_receipt = None
+if "CONTRACT_ADDRESS" not in os.environ:
+    nonce = w3.eth.get_transaction_count(admin_address)
+    transaction = BlockarooSmartContract.constructor().build_transaction(
+        {
+            "chainId": 1337,
+            "gasPrice": w3.eth.gas_price,
+            "from": admin_address,
+            "nonce": nonce,
+        })
+    transaction.pop('to')
+    signed_txn = w3.eth.account.sign_transaction(transaction, private_key=admin_private_key)
+    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    tx_receipt = None
+    while tx_receipt is None:
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        time.sleep(0.5)  # Sleep for 1 second before checking again
+        
+    os.environ["CONTRACT_ADDRESS"] = tx_receipt["contractAddress"]
+    print (os.environ["CONTRACT_ADDRESS"])
 
 def init ():
     try:
@@ -187,24 +204,6 @@ def init ():
         count = cursor.fetchone()[0]
 
         if count == 0:
-            nonce = w3.eth.get_transaction_count(admin_address)
-            transaction = BlockarooSmartContract.constructor().build_transaction(
-            {
-                "chainId": 1337,
-                "gasPrice": w3.eth.gas_price,
-                "from": admin_address,
-                "nonce": nonce,
-            })
-            transaction.pop('to')
-            signed_txn = w3.eth.account.sign_transaction(transaction, private_key=admin_private_key)
-            tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-            tx_receipt = None
-            while tx_receipt is None:
-                tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-                time.sleep(0.5)  # Sleep for 1 second before checking again
-            
-            os.environ["CONTRACT_ADDRESS"] = tx_receipt["contractAddress"]
-            print (os.environ["CONTRACT_ADDRESS"])
             
                 # If NFTItems table is empty, insert data
             for item in items:
@@ -451,26 +450,27 @@ def buy_nft(buy: BuyModel):
         query = '''USE blockaroo_db;'''
         cursor.execute(query)
         
-        # query = "SELECT private_key FROM wallets WHERE wallet_address = %s"
-        # values = (buy.from_address,)
-        # cursor.execute(query, values)
-        # private_key = cursor.fetchone()[0]
+        query = "SELECT private_key FROM wallets WHERE wallet_address = %s"
+        values = (buy.from_address,)
+        cursor.execute(query, values)
+        user_private_key = cursor.fetchone()[0]
+        print (user_private_key)
         
-        # nonce = w3.eth.get_transaction_count(admin_address)
-        # blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
-        # buy_transaction = blockaroo_smart_contract.functions.mint(buy.token_id, buy.token_id).build_transaction(
-        # {
-        #     "chainId": 1337,
-        #     "gasPrice": w3.eth.gas_price,
-        #     "from": buy.from_address,
-        #     "nonce": nonce,
-        # })     
-        # signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=private_key)
-        # tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        # tx_receipt = None
-        # while tx_receipt is None:
-        #     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        #     time.sleep(0.5)  # Sleep for 1 second before checking again
+        nonce = w3.eth.get_transaction_count(admin_address)
+        blockaroo_smart_contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=abi)
+        buy_transaction = blockaroo_smart_contract.functions.transfer(buy.token_id, buy.to_address).build_transaction(
+        {
+            "chainId": 1337,
+            "gasPrice": w3.eth.gas_price,
+            "from": buy.from_address,
+            "nonce": nonce,
+        })     
+        signed_tx = w3.eth.account.sign_transaction(buy_transaction, private_key=user_private_key)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        tx_receipt = None
+        while tx_receipt is None:
+            tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+            time.sleep(0.5)  # Sleep for 1 second before checking again
         
 
         
