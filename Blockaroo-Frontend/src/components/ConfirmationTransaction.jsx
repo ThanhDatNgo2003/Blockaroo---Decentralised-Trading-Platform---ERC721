@@ -153,26 +153,9 @@
           } else {
             console.error('Item with token', token, 'not found in Items Data');
           }
-          const storedUsername = sessionStorage.getItem('username');
 
-          // Create newTransaction object
-          // const newTransaction = {
-          //   kind: "ERC721 transfer",
-          //   tokenId: token,
-          //   timestamp: Date.now().toString(),
-          //   from: objectToModify.wallet_address,
-          //   to: localStorage.getItem('wallet_address'),
-          //   status: 'success',
-          //   price: objectToModify.price, 
-          // };
-
-          
-          const jsonString = JSON.stringify(itemsData, null, 2);
-          console.log(jsonString);
         
       } else {
-        setSnackbarSeverity('error');
-        setSnackbarMessage('Insufficient funds for transaction.');
       }
     
       setSnackbarOpen(true);

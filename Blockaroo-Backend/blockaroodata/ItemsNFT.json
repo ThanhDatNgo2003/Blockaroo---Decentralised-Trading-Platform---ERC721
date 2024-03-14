@@ -2,7 +2,7 @@
   {
     "item_name": "Koala #8179",
     "image_uri": "./koala/420637536_352617811043568_5716616640134551334_n.jpg",
-    "price": 0.85,
+    "price": 20,
     "onsell": true,
     "artist": "John Doe",
     "wallet_id": 1
@@ -18,7 +18,7 @@
   {
     "item_name": "Koala #2313",
     "image_uri": "./koala/416141423_279151911845118_6687974581620779199_n.jpg",
-    "price": 1.20,
+    "price": 8,
     "onsell": true,
     "artist": "Alex Johnson",
     "wallet_id": 1
@@ -26,7 +26,7 @@
   {
     "item_name": "Alligator #1920",
     "image_uri": "./alligator/416090472_895708478730937_3745611650370454475_n.jpg",
-    "price": 0.99,
+    "price": 14,
     "onsell": true,
     "artist": "Sophie Williams",
     "wallet_id": 1
@@ -34,7 +34,7 @@
   {
     "item_name": "Alligator #8522",
     "image_uri": "./alligator/418895600_894327358831352_2168699570012412752_n.jpg",
-    "price": 5.75,
+    "price": 5,
     "onsell": true,
     "artist": "David Brown",
     "wallet_id": 1
@@ -42,7 +42,7 @@
   {
     "item_name": "Lion #8293",
     "image_uri": "./lion/420479063_357302260528617_127239391302064322_n.jpg",
-    "price": 2.30,
+    "price": 8,
     "onsell": true,
     "artist": "Olivia Turner",
     "wallet_id": 1
@@ -50,7 +50,7 @@
   {
     "item_name": "Koala #8413",
     "image_uri": "./koala/416139502_6956951294417432_8310495574534269602_n.jpg",
-    "price": 0.75,
+    "price": 3,
     "onsell": true,
     "artist": "Michael Adams",
     "wallet_id": 1
@@ -58,7 +58,7 @@
   {
     "item_name": "Kangaroo #1523",
     "image_uri": "./kangaroo/416193501_767975128693406_2112191809358410633_n.jpg",
-    "price": 1.80,
+    "price": 1,
     "onsell": true,
     "artist": "Emma White",
     "wallet_id": 1
@@ -66,7 +66,7 @@
   {
     "item_name": "Kangaroo #3913",
     "image_uri": "./kangaroo/416137443_1119060665766138_4858068110145093254_n.jpg",
-    "price": 0.50,
+    "price": 5,
     "onsell": true,
     "artist": "Benjamin Taylor",
     "wallet_id": 1
@@ -74,7 +74,7 @@
   {
     "item_name": "Lion #9173",
     "image_uri": "./lion/420479063_357302260528617_127239391302064322_n.jpg",
-    "price": 0.95,
+    "price": 8,
     "onsell": true,
     "artist": "Ava Martinez",
     "wallet_id": 1
@@ -82,7 +82,7 @@
   {
     "item_name": "Koala #8581",
     "image_uri": "./koala/420538542_913029606713433_7193693974574800096_n.jpg",
-    "price": 4.25,
+    "price": 4,
     "onsell": true,
     "artist": "Daniel Walker",
     "wallet_id": 1
@@ -90,7 +90,7 @@
   {
     "item_name": "Kangaroo #1389",
     "image_uri": "./kangaroo/416320690_1416536092306081_6394730436429114205_n.jpg",
-    "price": 2.90,
+    "price": 9,
     "onsell": true,
     "artist": "Ella Thompson",
     "wallet_id": 1
@@ -98,7 +98,7 @@
   {
     "item_name": "Lion #9152",
     "image_uri": "./lion/416157515_376353168324892_916726629560840246_n.jpg",
-    "price": 1.60,
+    "price": 1,
     "onsell": true,
     "artist": "Gabriel Clark",
     "wallet_id": 1
@@ -106,7 +106,7 @@
   {
     "item_name": "Alligator #7776",
     "image_uri": "./alligator/416079053_760020276181271_1018772057657731324_n.jpg",
-    "price": 0.70,
+    "price": 7,
     "onsell": true,
     "artist": "Grace Harris",
     "wallet_id": 1
@@ -114,7 +114,7 @@
   {
     "item_name": "Koala $6262",
     "image_uri": "./koala/416139502_6956951294417432_8310495574534269602_n.jpg",
-    "price": 1.45,
+    "price": 5,
     "onsell": true,
     "artist": "Jack Turner",
     "wallet_id": 1
@@ -122,7 +122,7 @@
   {
     "item_name": "Lion #4455",
     "image_uri": "./lion/418816853_742959257748473_7127954669646225653_n.jpg",
-    "price": 0.55,
+    "price": 5,
     "onsell": true,
     "artist": "Liam Evans",
     "wallet_id": 1
@@ -130,7 +130,7 @@
   {
     "item_name": "Kangaroo #9443",
     "image_uri": "./kangaroo/416128709_1033232694454402_7293120020095429342_n.jpg",
-    "price": 3.10,
+    "price": 3,
     "onsell": true,
     "artist": "Isabella Harris",
     "wallet_id": 1
@@ -138,7 +138,7 @@
   {
     "item_name": "Koala #8811",
     "image_uri": "./koala/416175010_149332201606848_2518519025901588448_n.jpg",
-    "price": 0.45,
+    "price": 12,
     "onsell": true,
     "artist": "Emma Turner",
     "wallet_id": 1

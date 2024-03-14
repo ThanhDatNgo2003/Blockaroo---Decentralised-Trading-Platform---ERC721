@@ -586,11 +586,42 @@ def search_NFTitems(keyword: str = Query(...)):
         NFTitems = [dict(zip(cursor.column_names, row)) for row in result]
 
         cursor.close()
+        connection.close()
 
         if (len(NFTitems) == 0):
             return {"message": f"No NFT items found matching the keyword: {keyword}"}
         else:
             return NFTitems
+    except mysql.connector.Error as err:
+        return {"error": f"Error: {err}"}
+    
+@app.get('/gethistory/')
+def get_transaction(wallet_address):
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        query = '''USE blockaroo_db;'''
+        cursor.execute(query)
+        
+        # Define the SQL query to search for NFT items based on the keyword
+        query = "SELECT * FROM TransactionHistory WHERE from_address = %s OR to_address = %s;"
+        values = (wallet_address, wallet_address)
+
+        cursor.execute(query, values)
+
+        result = cursor.fetchall()
+        
+        tranHis = [dict(zip(cursor.column_names, row)) for row in result]
+        
+        cursor.close()
+        connection.close()
+        
+
+        if (len(tranHis) == 0):
+            return {"message": f"No transaction history found"}
+        else:
+            return tranHis
     except mysql.connector.Error as err:
         return {"error": f"Error: {err}"}
 

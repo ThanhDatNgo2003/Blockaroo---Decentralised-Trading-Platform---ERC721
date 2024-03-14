@@ -9,11 +9,31 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Popover from '@mui/material/Popover';
+import getTransaction from '../api/getWalletTransaction';
+import { useEffect } from 'react';
 
 const TransactionHistory = ({ transactions }) => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [transaction, setTransaction] = useState([]);
+
+  useEffect(() => {
+    getTransaction(localStorage.getItem('wallet_address'))
+      .then((res) => res.data)
+      .then((data) => {
+        // console.log('Fetched data:', data);
+        if (data.hasOwnProperty("message")) {
+          // Handle error message if needed
+        } else {
+          // Update itemsData state with the fetched data
+          setTransaction(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
   const generateHash = (transaction) => {
     const detailsString = JSON.stringify(transaction);
@@ -45,17 +65,17 @@ const TransactionHistory = ({ transactions }) => {
         Transaction History
       </Typography>
       <List>
-        {transactions.map((transaction, index) => {
-          const transactionHash = generateHash(transaction);
+        {transaction.map((transac, index) => {
+          const transactionHash = transac.transaction_hash;
 
           return (
-            <React.Fragment key={transaction.id}>
+            <React.Fragment key={transac.transaction_id}>
               <ListItem disablePadding>
-                <ListItemButton onClick={(event) => handleTransactionClick(event, transaction)}>
+                <ListItemButton onClick={(event) => handleTransactionClick(event, transac)}>
                   <ListItemText primary={transactionHash} />
                 </ListItemButton>
               </ListItem>
-              {index < transactions.length - 1 && <Divider />}
+              {index < transaction.length - 1 && <Divider />}
             </React.Fragment>
           );
         })}
